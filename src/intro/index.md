@@ -1,131 +1,105 @@
-# Introduction
+# Введение
 
-Welcome to The Embedded Rust Book: An introductory book about using the Rust
-Programming Language on "Bare Metal" embedded systems, such as Microcontrollers.
+Добро пожаловать в Книгу по Embedded Rust: вводную книгу об использовании языка программирования Rust на "Bare Metal" встраиваемых системах, таких как микроконтроллеры.
 
-## Who Embedded Rust is For
-Embedded Rust is for everyone who wants to do embedded programming while taking advantage of the higher-level concepts and safety guarantees the Rust language provides.
-(See also [Who Rust Is For](https://doc.rust-lang.org/book/ch00-00-introduction.html))
+## Для кого предназначен Embedded Rust
 
-## Scope
+Embedded Rust предназначен для всех, кто хочет заниматься встраиваемым программированием, используя преимущества концепций более высокого уровня и гарантий безопасности, предоставляемых языком Rust.
+(См. также [Для кого предназначен Rust](https://doc.rust-lang.org/book/ch00-00-introduction.html))
 
-The goals of this book are:
+## Область применения
 
-* Get developers up to speed with embedded Rust development. i.e. How to set
-  up a development environment.
+Цели этой книги:
 
-* Share *current* best practices about using Rust for embedded development. i.e.
-  How to best use Rust language features to write more correct embedded
-  software.
+* Помочь разработчикам быстро освоить разработку на embedded Rust. Т.е. как настроить среду разработки.
 
-* Serve as a cookbook in some cases. e.g. How do I mix C and Rust in a single
-  project?
+* Поделиться *текущими* лучшими практиками использования Rust для разработки встраиваемых систем. Т.е. как лучше использовать функции языка Rust для написания более правильного ПО для встраиваемых систем.
 
-This book tries to be as general as possible but to make things easier for both
-the readers and the writers it uses the ARM Cortex-M architecture in all its
-examples. However, the book doesn't assume that the reader is familiar with this
-particular architecture and explains details particular to this architecture
-where required.
+* Служить кулинарной книгой в некоторых случаях. Например, как смешать C и Rust в одном проекте?
 
-## Who This Book is For
-This book caters towards people with either some embedded background or some Rust background, however we believe
-everybody curious about embedded Rust programming can get something out of this book. For those without any prior knowledge
-we suggest you read the "Assumptions and Prerequisites" section and catch up on missing knowledge to get more out of the book
-and improve your reading experience. You can check out the "Other Resources" section to find resources on topics
-you might want to catch up on.
+Эта книга старается быть как можно более общей, но для облегчения как для читателей, так и для авторов она использует архитектуру ARM Cortex-M во всех примерах. Однако книга не предполагает, что читатель знаком с этой конкретной архитектурой, и объясняет детали, специфичные для этой архитектуры, где это необходимо.
 
-### Assumptions and Prerequisites
+## Для кого эта книга
 
-* You are comfortable using the Rust Programming Language, and have written,
-  run, and debugged Rust applications on a desktop environment. You should also
-  be familiar with the idioms of the [2018 edition] as this book targets
-  Rust 2018.
+Эта книга ориентирована на людей с опытом либо в embedded-разработке, либо в Rust, однако мы считаем, что каждый, интересующийся embedded-программированием на Rust, может извлечь из этой книги пользу. Для тех, у кого нет предварительных знаний, мы предлагаем прочитать раздел "Предположения и предпосылки" и наверстать упущенные знания, чтобы получить больше от книги и улучшить опыт чтения. Вы можете посмотреть раздел "Другие ресурсы", чтобы найти материалы по темам, которые вы хотите наверстать.
+
+### Предположения и предпосылки
+
+* Вы комфортно используете язык программирования Rust и написали, запустили и отлаживали приложения на Rust в десктопной среде. Вы также должны быть знакомы с идиомами [издания 2018 года], поскольку эта книга ориентирована на Rust 2018.
 
 [2018 edition]: https://doc.rust-lang.org/edition-guide/
 
-* You are comfortable developing and debugging embedded systems in another
-  language such as C, C++, or Ada, and are familiar with concepts such as:
-    * Cross Compilation
-    * Memory Mapped Peripherals
-    * Interrupts
-    * Common interfaces such as I2C, SPI, Serial, etc.
+* Вы комфортно разрабатываете и отлаживаете встраиваемые системы на другом языке, таком как C, C++ или Ada, и знакомы с концепциями, такими как:
+    * Кросс-компиляция
+    * Периферийные устройства, отображенные в память
+    * Прерывания
+    * Общие интерфейсы, такие как I2C, SPI, Serial и т.д.
 
-### Other Resources
-If you are unfamiliar with anything mentioned above or if you want more information about a specific topic mentioned in this book you might find some of these resources helpful.
+### Другие ресурсы
 
-| Topic        | Resource | Description |
-|--------------|----------|-------------|
-| Rust         | [Rust Book](https://doc.rust-lang.org/book/) | If you are not yet comfortable with Rust, we highly suggest reading this book. |
-| Rust, Embedded | [Discovery Book](https://docs.rust-embedded.org/discovery/) | If you have never done any embedded programming, this book might be a better start |
-| Rust, Embedded | [Embedded Rust Bookshelf](https://docs.rust-embedded.org) | Here you can find several other resources provided by Rust's Embedded Working Group. |
-| Rust, Embedded | [Embedonomicon](https://docs.rust-embedded.org/embedonomicon/) | The nitty gritty details when doing embedded programming in Rust. |
-| Rust, Embedded | [embedded FAQ](https://docs.rust-embedded.org/faq.html) | Frequently asked questions about Rust in an embedded context. |
-| Rust, Embedded | [Comprehensive Rust 🦀: Bare Metal](https://google.github.io/comprehensive-rust/bare-metal.html) | Teaching material for a 1-day class on bare-metal Rust development |
-| Interrupts | [Interrupt](https://en.wikipedia.org/wiki/Interrupt) | - |
-| Memory-mapped IO/Peripherals | [Memory-mapped I/O](https://en.wikipedia.org/wiki/Memory-mapped_I/O) | - |
-| SPI, UART, RS232, USB, I2C, TTL | [Stack Exchange about SPI, UART, and other interfaces](https://electronics.stackexchange.com/questions/37814/usart-uart-rs232-usb-spi-i2c-ttl-etc-what-are-all-of-these-and-how-do-th) | - |
+Если вы не знакомы с чем-либо упомянутым выше или хотите больше информации по конкретной теме, упомянутой в этой книге, вы можете найти некоторые из этих ресурсов полезными.
 
-### Translations
+| Тема          | Ресурс | Описание |
+|---------------|--------|-----------|
+| Rust          | [Книга по Rust](https://doc.rust-lang.org/book/) | Если вы еще не комфортно владеете Rust, мы настоятельно рекомендуем прочитать эту книгу. |
+| Rust, Embedded | [Книга Discovery](https://docs.rust-embedded.org/discovery/) | Если вы никогда не занимались embedded-программированием, эта книга может быть лучшим стартом |
+| Rust, Embedded | [Полка книг по Embedded Rust](https://docs.rust-embedded.org) | Здесь вы можете найти несколько других ресурсов, предоставленных рабочей группой Embedded Rust. |
+| Rust, Embedded | [Embedonomicon](https://docs.rust-embedded.org/embedonomicon/) | Детали embedded-программирования на Rust. |
+| Rust, Embedded | [FAQ по embedded](https://docs.rust-embedded.org/faq.html) | Часто задаваемые вопросы по Rust в embedded. |
+| Встраиваемое программирование | [Курс на Coursera](https://www.coursera.org/learn/introduction-embedded-systems) | Бесплатный курс на Coursera по встраиваемым системам. |
+| Встраиваемое программирование | [Курс на edX](https://www.edx.org/course/embedded-systems-shape-world-utaustinx-ut-6-02x) | Бесплатный курс на edX по встраиваемым системам. |
+| Прерывания    | [Прерывание](https://en.wikipedia.org/wiki/Interrupt) | - |
+| Отображение ввода/вывода в память/Периферийные устройства | [Отображение ввода/вывода в память](https://en.wikipedia.org/wiki/Memory-mapped_I/O) | - |
+| SPI, UART, RS232, USB, I2C, TTL | [Stack Exchange о SPI, UART и других интерфейсах](https://electronics.stackexchange.com/questions/37814/usart-uart-rs232-usb-spi-i2c-ttl-etc-what-are-all-of-these-and-how-do-th) | - |
 
-This book has been translated by generous volunteers. If you would like your
-translation listed here, please open a PR to add it.
+### Переводы
 
-* [Japanese](https://tomoyuki-nakabayashi.github.io/book/)
-  ([repository](https://github.com/tomoyuki-nakabayashi/book))
+Эта книга переведена щедрыми добровольцами. Если вы хотите, чтобы ваш перевод был перечислен здесь, пожалуйста, откройте PR, чтобы добавить его.
 
-* [Chinese](https://xxchang.github.io/book/)
-  ([repository](https://github.com/XxChang/book))
+* [Японский](https://tomoyuki-nakabayashi.github.io/book/)
+  ([репозиторий](https://github.com/tomoyuki-nakabayashi/book))
 
-## How to Use This Book
+* [Китайский](https://xxchang.github.io/book/)
+  ([репозиторий](https://github.com/XxChang/book))
 
-This book generally assumes that you’re reading it front-to-back. Later
-chapters build on concepts in earlier chapters, and earlier chapters may
-not dig into details on a topic, revisiting the topic in a later chapter.
+## Как использовать эту книгу
 
-This book will be using the [STM32F3DISCOVERY] development board from
-STMicroelectronics for the majority of the examples contained within. This board
-is based on the ARM Cortex-M architecture, and while basic functionality is
-the same across most CPUs based on this architecture, peripherals and other
-implementation details of Microcontrollers are different between different
-vendors, and often even different between Microcontroller families from the same
-vendor.
+Эта книга в целом предполагает, что вы читаете ее от начала до конца. Более поздние главы строятся на концепциях из ранних глав, и ранние главы могут не углубляться в детали темы, возвращаясь к ней в более поздней главе.
 
-For this reason, we suggest purchasing the [STM32F3DISCOVERY] development board
-for the purpose of following the examples in this book.
+Эта книга будет использовать плату разработки [STM32F3DISCOVERY] от STMicroelectronics для большинства примеров. Эта плата основана на архитектуре ARM Cortex-M, и хотя базовая функциональность одинакова для большинства CPU на этой архитектуре, периферийные устройства и другие детали реализации микроконтроллеров отличаются между разными производителями и даже между семьями микроконтроллеров от одного производителя.
+
+По этой причине мы рекомендуем приобрести плату разработки [STM32F3DISCOVERY] для следования примерам в этой книге.
 
 [STM32F3DISCOVERY]: http://www.st.com/en/evaluation-tools/stm32f3discovery.html
 
-## Contributing to This Book
+## Вклад в эту книгу
 
-The work on this book is coordinated in [this repository] and is mainly
-developed by the [resources team].
+Работа над этой книгой координируется в [этом репозитории] и в основном разрабатывается [командой ресурсов].
 
-[this repository]: https://github.com/rust-embedded/book
-[resources team]: https://github.com/rust-embedded/wg#the-resources-team
+[этом репозитории]: https://github.com/rust-embedded/book
+[командой ресурсов]: https://github.com/rust-embedded/wg#the-resources-team
 
-If you have trouble following the instructions in this book or find that some
-section of the book is not clear enough or hard to follow then that's a bug and
-it should be reported in [the issue tracker] of this book.
+Если у вас проблемы со следующими инструкциями в этой книге или вы находите, что какой-то раздел книги недостаточно ясен или трудно следовать, то это ошибка, и ее следует сообщить в [отслеживателе задач] этой книги.
 
-[the issue tracker]: https://github.com/rust-embedded/book/issues/
+[отслеживателе задач]: https://github.com/rust-embedded/book/issues/
 
-Pull requests fixing typos and adding new content are very welcome!
+Пулл-реквесты, исправляющие опечатки и добавляющие новый контент, очень приветствуются!
 
-## Re-using this material
+## Переиспользование этого материала
 
-This book is distributed under the following licenses:
+Эта книга распространяется под следующими лицензиями:
 
-* The code samples and free-standing Cargo projects contained within this book are licensed under the terms of both the [MIT License] and the [Apache License v2.0].
-* The written prose, pictures and diagrams contained within this book are licensed under the terms of the Creative Commons [CC-BY-SA v4.0] license.
+* Примеры кода и отдельные проекты Cargo, содержащиеся в этой книге, лицензированы на условиях как [лицензии MIT], так и [лицензии Apache v2.0].
+* Проза, изображения и диаграммы, содержащиеся в этой книге, лицензированы на условиях лицензии Creative Commons [CC-BY-SA v4.0].
 
 [MIT License]: https://opensource.org/licenses/MIT
 [Apache License v2.0]: http://www.apache.org/licenses/LICENSE-2.0
 [CC-BY-SA v4.0]: https://creativecommons.org/licenses/by-sa/4.0/legalcode
 
-TL;DR: If you want to use our text or images in your work, you need to:
+Коротко: Если вы хотите использовать наш текст или изображения в своей работе, вам нужно:
 
-* Give the appropriate credit (i.e. mention this book on your slide, and provide a link to the relevant page)
-* Provide a link to the [CC-BY-SA v4.0] licence
-* Indicate if you have changed the material in any way, and make any changes to our material available under the same licence
+* Дать соответствующую атрибуцию (т.е. упомянуть эту книгу на вашем слайде и предоставить ссылку на соответствующую страницу)
+* Предоставить ссылку на лицензию [CC-BY-SA v4.0]
+* Указать, если вы изменили материал каким-либо образом, и сделать любые изменения в нашем материале доступными под той же лицензией
 
-Also, please do let us know if you find this book useful!
+Также, пожалуйста, дайте нам знать, если вы находите эту книгу полезной!

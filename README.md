@@ -1,29 +1,30 @@
-# The Embedded Rust Book
+# Книга по Embedded Rust
 
-> Documentation on how to use the Rust Programming Language to develop firmware for bare metal (microcontroller) devices
+> Документация по использованию языка программирования Rust для разработки прошивок для устройств без операционной системы (микроконтроллеры)
+> Данный перевод был сделан с помощью нейросети, поэтому могут быть ошибки, которые при нахождении будут исправлены
 
-This project is developed and maintained by the [Resources team][team].
+Этот проект разрабатывается и поддерживается [командой ресурсов][team].
 
-See [the issue tracker] for more details. This book is a living document, and is updated continuously.
+Подробности можно найти в [отслеживателе задач]. Эта книга является живым документом и постоянно обновляется.
 
 [the issue tracker]: https://github.com/rust-embedded/book/issues
 
-## Online Copies of this Book
+## Онлайн-копии этой книги
 
-This book is located at https://docs.rust-embedded.org/book/
+Эта книга доступна по адресу https://docs.rust-embedded.org/book/
 
-## License
+## Лицензия
 
-The Embedded Rust Book (this project) is distributed under the following licenses:
+Книга по Embedded Rust (этот проект) распространяется под следующими лицензиями:
 
-* The code samples and free-standing Cargo projects contained within this book are licensed under the terms of both the [MIT License] and the [Apache License v2.0].
-* The written prose contained within this book is licensed under the terms of the Creative Commons [CC-BY-SA v4.0] license.
+* Примеры кода и отдельные проекты Cargo, содержащиеся в этой книге, лицензируются на условиях [лицензии MIT] и [лицензии Apache v2.0].
+* Проза, написанная в этой книге, лицензируется на условиях лицензии Creative Commons [CC-BY-SA v4.0].
 
-Copies of the licenses used by this project may also be found here:
+Копии лицензий, используемых этим проектом, также можно найти здесь:
 
-* [MIT License Hosted]
-* [Apache License v2.0 Hosted]
-* [CC-BY-SA v4.0 Hosted]
+* [Лицензия MIT]
+* [Лицензия Apache v2.0]
+* [Лицензия CC-BY-SA v4.0]
 
 [MIT License]: ./LICENSE-MIT
 [Apache License v2.0]: ./LICENSE-APACHE
@@ -32,15 +33,13 @@ Copies of the licenses used by this project may also be found here:
 [Apache License v2.0 Hosted]: http://www.apache.org/licenses/LICENSE-2.0
 [CC-BY-SA v4.0 Hosted]: https://creativecommons.org/licenses/by-sa/4.0/legalcode
 
-### Contribution
+### Вклад
 
-Unless you explicitly state otherwise, any contribution intentionally submitted for inclusion in the work by you, as defined in the Apache-2.0 license, shall be licensed as above, without any additional terms or conditions.
+Если не указано иное, любой вклад, намеренно представленный для включения в этот проект, как определено в лицензии Apache-2.0, лицензируется, как указано выше, без дополнительных условий.
 
-## Code of Conduct
+## Кодекс поведения
 
-Contribution to this crate is organized under the terms of the [Rust Code of
-Conduct][CoC], the maintainer of this crate, the [Resources team][team], promises
-to intervene to uphold that code of conduct.
+Вклад в этот проект организуется в соответствии с [Кодексом поведения Rust][CoC], и сопровождающий этого проекта, [команда ресурсов][team], обязуется вмешиваться для соблюдения этого кодекса.
 
 [CoC]: CODE_OF_CONDUCT.md
 [team]: https://github.com/rust-embedded/wg#the-resources-team

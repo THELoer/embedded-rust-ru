@@ -1,30 +1,24 @@
-# Verify Installation
+# Проверка установки
 
-In this section we check that some of the required tools / drivers have been
-correctly installed and configured.
+В этом разделе мы проверяем, что некоторые требуемые инструменты / драйверы были правильно установлены и настроены.
 
-Connect your laptop / PC to the discovery board using a Mini-USB USB cable. The
-discovery board has two USB connectors; use the one labeled "USB ST-LINK" that
-sits on the center of the edge of the board.
+Подключите ваш ноутбук / ПК к плате discovery с помощью кабеля Mini-USB. Плата discovery имеет два разъема USB; используйте тот, с меткой "USB ST-LINK", который находится в центре края платы.
 
-Also check that the ST-LINK header is populated. See the picture below; the
-ST-LINK header is highlighted.
+Также проверьте, что заголовок ST-LINK установлен. Смотрите картинку ниже; заголовок ST-LINK выделен.
 
 <p align="center">
-<img title="Connected discovery board" src="../../assets/verify.jpeg">
+<img title="Подключенная плата discovery" src="../../assets/verify.jpeg">
 </p>
 
-Now run the following command:
+Теперь выполните следующую команду:
 
 ``` console
 openocd -f interface/stlink.cfg -f target/stm32f3x.cfg
 ```
 
-> **NOTE**: Old versions of openocd, including the 0.10.0 release from 2017, do
-> not contain the new (and preferable) `interface/stlink.cfg` file; instead you
-> may need to use `interface/stlink-v2.cfg` or `interface/stlink-v2-1.cfg`.
+> **ПРИМЕЧАНИЕ**: Старые версии openocd, включая релиз 0.10.0 от 2017 года, не содержат новый (и предпочтительный) файл `interface/stlink.cfg`; вместо этого может потребоваться использовать `interface/stlink-v2.cfg` или `interface/stlink-v2-1.cfg`.
 
-You should get the following output and the program should block the console:
+Вы должны получить следующий вывод, и программа заблокирует консоль:
 
 ``` text
 Open On-Chip Debugger 0.10.0
@@ -45,13 +39,11 @@ Info : Target voltage: 2.919881
 Info : stm32f3x.cpu: hardware has 6 breakpoints, 4 watchpoints
 ```
 
-The contents may not match exactly but you should get the last line about
-breakpoints and watchpoints. If you got it then terminate the OpenOCD process
-and move to the [next section].
+Содержимое может не совпадать точно, но вы должны получить последнюю строку о точках останова и наблюдения. Если вы получили ее, завершите процесс OpenOCD и перейдите к [следующему разделу].
 
-[next section]: ../../start/index.md
+[следующему разделу]: ../../start/index.md
 
-If you didn't get the "breakpoints" line then try one of the following commands.
+Если вы не получили строку "breakpoints", попробуйте одну из следующих команд.
 
 ``` console
 openocd -f interface/stlink-v2.cfg -f target/stm32f3x.cfg
@@ -61,18 +53,12 @@ openocd -f interface/stlink-v2.cfg -f target/stm32f3x.cfg
 openocd -f interface/stlink-v2-1.cfg -f target/stm32f3x.cfg
 ```
 
-If one of those commands works it means you got an old hardware revision of the
-discovery board. That won't be a problem but commit that fact to memory as
-you'll need to configure things a bit differently later on. You can move to the
-[next section].
+Если одна из этих команд работает, это значит, что у вас старая аппаратная ревизия платы discovery. Это не будет проблемой, но запомните этот факт, поскольку вам потребуется немного по-другому настроить вещи позже. Вы можете перейти к [следующему разделу].
 
-If none of the commands work as a normal user then try to run them with root
-permission (e.g. `sudo openocd ..`). If the commands do work with root
-permission then check that the [udev rules] have been correctly set.
+Если ни одна из команд не работает от обычного пользователя, попробуйте запустить их с правами root (например, `sudo openocd ..`). Если команды работают с правами root, проверьте, что [правила udev] установлены правильно.
 
-[udev rules]: linux.md#udev-rules
+[правила udev]: linux.md#udev-rules
 
-If you have reached this point and OpenOCD is not working please open [an issue]
-and we'll help you out!
+Если вы дошли до этого момента и OpenOCD не работает, пожалуйста, откройте [issue], и мы поможем вам!
 
-[an issue]: https://github.com/rust-embedded/book/issues
+[issue]: https://github.com/rust-embedded/book/issues

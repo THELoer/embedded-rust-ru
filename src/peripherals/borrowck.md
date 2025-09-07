@@ -1,19 +1,19 @@
-## Mutable Global State
+## Изменяемое глобальное состояние
 
-Unfortunately, hardware is basically nothing but mutable global state, which can feel very frightening for a Rust developer. Hardware exists independently from the structures of the code we write, and can be modified at any time by the real world.
+К сожалению, аппаратное обеспечение — это, по сути, не что иное, как изменяемое глобальное состояние, что может пугать разработчика на Rust. Аппаратное обеспечение существует независимо от структур кода, который мы пишем, и может быть изменено в любой момент реальным миром.
 
-## What should our rules be?
+## Какими должны быть наши правила?
 
-How can we reliably interact with these peripherals?
+Как мы можем надежно взаимодействовать с этими периферийными устройствами?
 
-1. Always use `volatile` methods to read or write to peripheral memory, as it can change at any time
-2. In software, we should be able to share any number of read-only accesses to these peripherals
-3. If some software should have read-write access to a peripheral, it should hold the only reference to that peripheral
+1. Всегда используйте методы `volatile` для чтения или записи в память периферийных устройств, так как она может измениться в любой момент.
+2. В программном обеспечении мы должны иметь возможность предоставлять любое количество доступов только для чтения к этим периферийным устройствам.
+3. Если программное обеспечение должно иметь доступ на чтение и запись к периферийному устройству, оно должно быть единственным обладателем ссылки на это устройство.
 
-## The Borrow Checker
+## Проверяющий заимствования
 
-The last two of these rules sound suspiciously similar to what the Borrow Checker does already!
+Последние два правила подозрительно похожи на то, что уже делает проверяющий заимствования (Borrow Checker)!
 
-Imagine if we could pass around ownership of these peripherals, or offer immutable or mutable references to them?
+Представьте, если бы мы могли передавать владение этими периферийными устройствами или предоставлять неизменяемые или изменяемые ссылки на них?
 
-Well, we can, but for the Borrow Checker, we need to have exactly one instance of each peripheral, so Rust can handle this correctly. Well, luckily in the hardware, there is only one instance of any given peripheral, but how can we expose that in the structure of our code?
+Мы можем это сделать, но для проверяющего заимствования нам нужно иметь ровно один экземпляр каждого периферийного устройства, чтобы Rust мог корректно это обработать. К счастью, в аппаратном обеспечении есть только один экземпляр любого данного периферийного устройства, но как мы можем отразить это в структуре нашего кода?

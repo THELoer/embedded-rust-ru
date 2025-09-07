@@ -1,64 +1,55 @@
-# Appendix A: Glossary
+# Приложение A: Глоссарий
 
-The embedded ecosystem is full of different protocols, hardware components and
-vendor-specific things that use their own terms and abbreviations. This Glossary
-attempts to list them with pointers for understanding them better.
+Экосистема встраиваемых систем полна различных протоколов, аппаратных компонентов и специфичных для производителей терминов и аббревиатур. Этот глоссарий стремится перечислить их с указателями для лучшего понимания.
 
 ### BSP
 
-A Board Support Crate provides a high level interface configured for a specific
-board. It usually depends on a [HAL](#hal) crate.
-There is a more detailed description on the [memory-mapped registers page](../start/registers.md)
-or for a broader overview see [this video](https://youtu.be/vLYit_HHPaY).
+Крейт поддержки платы (Board Support Crate) предоставляет высокоуровневый интерфейс, настроенный для конкретной платы. Обычно он зависит от крейта [HAL](#hal).
+Более подробное описание можно найти на [странице о регистрах с отображением в память](../start/registers.md)
+или для более общего обзора смотрите [это видео](https://youtu.be/vLYit_HHPaY).
 
 ### FPU
 
-Floating-point Unit. A 'math processor' running only operations on floating-point numbers.
+Блок операций с плавающей запятой (Floating-point Unit). "Математический процессор", выполняющий операции только с числами с плавающей запятой.
 
 ### HAL
 
-A Hardware Abstraction Layer crate provides a developer friendly interface to a microcontroller's
-features and peripherals. It is usually implemented on top of a [Peripheral Access Crate (PAC)](#pac).
-It may also implement traits from the [`embedded-hal`](https://crates.io/crates/embedded-hal) crate.
-There is a more detailed description on the [memory-mapped registers page](../start/registers.md)
-or for a broader overview see [this video](https://youtu.be/vLYit_HHPaY).
+Крейт уровня абстракции аппаратного обеспечения (Hardware Abstraction Layer) предоставляет удобный для разработчика интерфейс к функциям и периферийным устройствам микроконтроллера. Обычно он реализуется поверх крейта [Peripheral Access Crate (PAC)](#pac).
+Также он может реализовывать трейты из крейта [`embedded-hal`](https://crates.io/crates/embedded-hal).
+Более подробное описание можно найти на [странице о регистрах с отображением в память](../start/registers.md)
+или для более общего обзора смотрите [это видео](https://youtu.be/vLYit_HHPaY).
 
 ### I2C
 
-Sometimes referred to as `I²C` or Inter-IC. It is a protocol meant for hardware communication
-within a single integrated circuit. See [here][i2c] for more details
+Иногда обозначается как `I²C` или Inter-IC. Это протокол, предназначенный для коммуникации между аппаратными компонентами внутри одной интегральной схемы. Подробности смотрите [здесь][i2c].
 
 [i2c]: https://en.wikipedia.org/wiki/I2c
 
 ### PAC
 
-A Peripheral Access Crate provides access to a microcontroller's peripherals. It is one of
-the lower level crates and is usually generated directly from the provided [SVD](#svd), often
-using [svd2rust](https://github.com/rust-embedded/svd2rust/). The [Hardware Abstraction Layer](#hal)
-would usually depend on this crate.
-There is a more detailed description on the [memory-mapped registers page](../start/registers.md)
-or for a broader overview see [this video](https://youtu.be/vLYit_HHPaY).
+Крейт доступа к периферийным устройствам (Peripheral Access Crate) предоставляет доступ к периферийным устройствам микроконтроллера. Это один из низкоуровневых крейтов, который обычно генерируется непосредственно из предоставленного [SVD](#svd), часто с использованием [svd2rust](https://github.com/rust-embedded/svd2rust/). Крейт [уровня абстракции аппаратного обеспечения](#hal) обычно зависит от этого крейта.
+Более подробное описание можно найти на [странице о регистрах с отображением в память](../start/registers.md)
+или для более общего обзора смотрите [это видео](https://youtu.be/vLYit_HHPaY).
 
 ### SPI
 
-Serial Peripheral Interface. See [here][spi] for more information.
+Интерфейс периферийных устройств (Serial Peripheral Interface). Подробности смотрите [здесь][spi].
 
 [spi]: https://en.wikipedia.org/wiki/Serial_peripheral_interface
 
 ### SVD
 
-System View Description is an XML file format used to describe the programmers view of a
-microcontroller device. You can read more about it on
-[the ARM CMSIS documentation site](https://www.keil.com/pack/doc/CMSIS/SVD/html/index.html).
+Описание системного вида (System View Description) — это формат XML-файла, используемый для описания представления микроконтроллера с точки зрения программиста. Подробности можно прочитать на
+[сайте документации ARM CMSIS](https://www.keil.com/pack/doc/CMSIS/SVD/html/index.html).
 
 ### UART
 
-Universal asynchronous receiver-transmitter. See [here][uart] for more information.
+Универсальный асинхронный приёмопередатчик (Universal Asynchronous Receiver-Transmitter). Подробности смотрите [здесь][uart].
 
 [uart]: https://en.wikipedia.org/wiki/Universal_asynchronous_receiver-transmitter
 
 ### USART
 
-Universal synchronous and asynchronous receiver-transmitter. See [here][usart] for more information.
+Универсальный синхронный и асинхронный приёмопередатчик (Universal Synchronous and Asynchronous Receiver-Transmitter). Подробности смотрите [здесь][usart].
 
 [usart]: https://en.wikipedia.org/wiki/Universal_synchronous_and_asynchronous_receiver-transmitter

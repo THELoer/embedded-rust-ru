@@ -1,9 +1,6 @@
-# Naming
-
+# Именование
 
 <a id="c-crate-name"></a>
-## The crate is named appropriately (C-CRATE-NAME)
+## Крейт назван корректно (C-CRATE-NAME)
 
-HAL crates should be named after the chip or family of chips they aim to
-support. Their name should end with `-hal` to distinguish them from register
-access crates. The name should not contain underscores (use dashes instead).
+Крейты HAL должны быть названы по имени микросхемы или семейства микросхем, которые они поддерживают. Их имя должно заканчиваться на `-hal`, чтобы отличать их от крейтов доступа к регистрам. В имени не должны использоваться подчеркивания (вместо них используйте дефисы).

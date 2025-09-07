@@ -1,40 +1,23 @@
-# Interoperability
+# Интероперабельность
 
-Interoperability between Rust and C code is always dependent
-on transforming data between the two languages.
-For this purpose, there is a dedicated module
-in the `stdlib` called
-[`std::ffi`](https://doc.rust-lang.org/std/ffi/index.html).
+Интероперабельность между кодом на Rust и C всегда зависит от преобразования данных между двумя языками. Для этой цели в `stdlib` есть специальный модуль, называемый [`std::ffi`](https://doc.rust-lang.org/std/ffi/index.html).
 
-`std::ffi` provides type definitions for C primitive types,
-such as `char`, `int`, and `long`.
-It also provides some utility for converting more complex
-types such as strings, mapping both `&str` and `String`
-to C types that are easier and safer to handle.
+`std::ffi` предоставляет определения типов для примитивов C, таких как `char`, `int` и `long`. Также он предоставляет утилиты для преобразования более сложных типов, таких как строки, отображая как `&str`, так и `String` на типы C, которые легче и безопаснее обрабатывать.
 
-As of Rust 1.30,
-functionalities of `std::ffi` are available
-in either `core::ffi` or `alloc::ffi`
-depending on whether or not memory allocation is involved.
-The [`cty`] crate and the [`cstr_core`] crate
-also offer similar functionalities.
+Начиная с Rust 1.30, функциональность `std::ffi` доступна либо в `core::ffi`, либо в `alloc::ffi`, в зависимости от того, связано ли это с выделением памяти. Крейты [`cty`] и [`cstr_core`] также предлагают аналогичные функциональности.
 
 [`cstr_core`]: https://crates.io/crates/cstr_core
 [`cty`]: https://crates.io/crates/cty
 
-| Rust type      | Intermediate | C type         |
-|----------------|--------------|----------------|
-| `String`       | `CString`    | `char *`       |
-| `&str`         | `CStr`       | `const char *` |
-| `()`           | `c_void`     | `void`         |
-| `u32` or `u64` | `c_uint`     | `unsigned int` |
-| etc            | ...          | ...            |
+| Тип Rust       | Промежуточный | Тип C          |
+|----------------|---------------|----------------|
+| `String`       | `CString`     | `char *`       |
+| `&str`         | `CStr`        | `const char *` |
+| `()`           | `c_void`      | `void`         |
+| `u32` или `u64`| `c_uint`      | `unsigned int` |
+| и т.д.         | ...           | ...            |
 
-A value of a C primitive type can be used
-as one of the corresponding Rust type and vice versa,
-since the former is simply a type alias of the latter.
-For example, the following code compiles on platforms
-where `unsigned int` is 32-bit long.
+Значение типа-примитива C можно использовать как соответствующий тип Rust и наоборот, поскольку первый является просто псевдонимом второго. Например, следующий код компилируется на платформах, где `unsigned int` имеет длину 32 бита:
 
 ```rust,ignore
 fn foo(num: u32) {
@@ -43,22 +26,18 @@ fn foo(num: u32) {
 }
 ```
 
-## Interoperability with other build systems
+## Интероперабельность с другими системами сборки
 
-A common requirement for including Rust in your embedded project is combining
-Cargo with your existing build system, such as make or cmake.
+Общим требованием для включения Rust в ваш проект для встраиваемых систем является объединение Cargo с вашей существующей системой сборки, такой как make или cmake.
 
-We are collecting examples and use cases for this on our issue tracker in
-[issue #61].
+Мы собираем примеры и случаи использования для этого в нашем трекере задач в [issue #61].
 
 [issue #61]: https://github.com/rust-embedded/book/issues/61
 
-## Interoperability with RTOSs
+## Интероперабельность с RTOS
 
-Integrating Rust with an RTOS such as FreeRTOS or ChibiOS is still a work in
-progress; especially calling RTOS functions from Rust can be tricky.
+Интеграция Rust с RTOS, такими как FreeRTOS или ChibiOS, все еще находится в стадии разработки; особенно вызов функций RTOS из Rust может быть сложным.
 
-We are collecting examples and use cases for this on our issue tracker in
-[issue #62].
+Мы собираем примеры и случаи использования для этого в нашем трекере задач в [issue #62].
 
 [issue #62]: https://github.com/rust-embedded/book/issues/62

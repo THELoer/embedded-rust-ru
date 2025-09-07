@@ -1,64 +1,64 @@
-# Portability
+# Портируемость
 
-In embedded environments portability is a very important topic: Every vendor and even each family from a single manufacturer offers different peripherals and capabilities and similarly the ways to interact with the peripherals will vary.
+Встраиваемые системы делают портируемость очень важной темой: каждый производитель и даже каждая серия от одного производителя предлагает различные периферийные устройства и возможности, а способы взаимодействия с этими периферийными устройствами также различаются.
 
-A common way to equalize such differences is via a layer called Hardware Abstraction layer or **HAL**.
+Общий способ устранения таких различий — использование слоя, называемого уровнем абстракции оборудования или **HAL**.
 
-> Hardware abstractions are sets of routines in software that emulate some platform-specific details, giving programs direct access to the hardware resources.
+> Абстракции оборудования — это наборы программных процедур, которые эмулируют некоторые специфические для платформы детали, предоставляя программам прямой доступ к аппаратным ресурсам.
 >
-> They often allow programmers to write device-independent, high performance applications by providing standard operating system (OS) calls to hardware.
+> Они часто позволяют программистам писать независимые от устройства высокопроизводительные приложения, предоставляя стандартные вызовы операционной системы к оборудованию.
 >
-> *Wikipedia: [Hardware Abstraction Layer]*
+> *Википедия: [Уровень абстракции оборудования]*
 
-[Hardware Abstraction Layer]: https://en.wikipedia.org/wiki/Hardware_abstraction
+[Уровень абстракции оборудования]: https://en.wikipedia.org/wiki/Hardware_abstraction
 
-Embedded systems are a bit special in this regard since we typically do not have operating systems and user installable software but firmware images which are compiled as a whole as well as a number of other constraints. So while the traditional approach as defined by Wikipedia could potentially work it is likely not the most productive approach to ensure portability.
+Встраиваемые системы в этом отношении немного особенные, поскольку обычно у них нет операционных систем и программного обеспечения, устанавливаемого пользователем, а вместо этого используются образы прошивки, которые компилируются целиком, а также существуют другие ограничения. Таким образом, традиционный подход, определенный Википедией, потенциально может работать, но, вероятно, не является наиболее продуктивным для обеспечения портируемости.
 
-How do we do this in Rust? Enter **[embedded-hal]**...
+Как это делается в Rust? Встречайте **[embedded-hal]**...
 
-## What is [embedded-hal]?
+## Что такое [embedded-hal]?
 
-In a nutshell it is a set of traits which define implementation contracts between **HAL implementations**, **drivers** and **applications (or firmwares)**. Those contracts include both capabilities (i.e. if a trait is implemented for a certain type, the **HAL implementation** provides a certain capability) and methods (i.e. if you can construct a type implementing a trait it is guaranteed that you have the methods specified in the trait available).
+Вкратце, это набор трейтов, которые определяют контракты реализации между **реализациями HAL**, **драйверами** и **приложениями (или прошивками)**. Эти контракты включают как возможности (т.е. если трейт реализован для определенного типа, **реализация HAL** предоставляет определенную функциональность), так и методы (т.е. если вы можете создать тип, реализующий трейт, гарантируется наличие методов, указанных в этом трейте).
 
-A typical layering might look like this:
+Типичная структура уровней может выглядеть следующим образом:
 
 ![](../assets/rust_layers.svg)
 
-Some of the defined traits in **[embedded-hal]** are:
-* GPIO (input and output pins)
-* Serial communication
+Некоторые из определенных трейтов в **[embedded-hal]** включают:
+* GPIO (пины ввода и вывода)
+* Последовательная связь
 * I2C
 * SPI
-* Timers/Countdowns
-* Analog Digital Conversion
+* Таймеры/обратные отсчеты
+* Аналогово-цифровое преобразование
 
-The main reason for having the **embedded-hal** traits and crates implementing and using them is to keep complexity in check. If you consider that an application might have to implement the use of the peripheral in the hardware as well as the application and potentially drivers for additional hardware components, then it should be easy to see that the re-usability is very limited. Expressed mathematically, if **M** is the number of peripheral HAL implementations and **N** the number of drivers then if we were to reinvent the wheel for every application then we would end up with **M*N** implementations while by using the *API* provided by the **[embedded-hal]** traits will make the implementation complexity approach **M+N**. Of course there're additional benefits to be had, such as less trial-and-error due to a well-defined and ready-to-use APIs.
+Основная причина использования трейтов **[embedded-hal]** и крейтов, их реализующих и использующих, — это контроль сложности. Если учесть, что приложение должно реализовать использование периферийного устройства в оборудовании, а также само приложение и, возможно, драйверы для дополнительных аппаратных компонентов, становится понятно, что возможности повторного использования весьма ограничены. Математически, если **M** — это количество реализаций HAL для периферийных устройств, а **N** — количество драйверов, то без использования **[embedded-hal]** сложность реализации может достигать **M×N**. Использование трейтов **[embedded-hal]** снижает сложность реализации до уровня, близкого к **M+N**. Конечно, есть и дополнительные преимущества, такие как меньшее количество проб и ошибок благодаря хорошо определенным и готовым к использованию API.
 
-## Users of the [embedded-hal]
+## Пользователи [embedded-hal]
 
-As said above there are three main users of the HAL:
+Как упомянуто выше, есть три основных пользователя HAL:
 
-### HAL implementation
+### Реализация HAL
 
-A HAL implementation provides the interfacing between the hardware and the users of the HAL traits. Typical implementations consist of three parts:
-* One or more hardware specific types
-* Functions to create and initialize such a type, often providing various configuration options (speed, operation mode, use pins, etc.)
-* one or more `trait` `impl` of **[embedded-hal]** traits for that type
+Реализация HAL обеспечивает взаимодействие между оборудованием и пользователями трейтов HAL. Типичные реализации состоят из трех частей:
+* Один или несколько типов, специфичных для оборудования
+* Функции для создания и инициализации таких типов, часто предоставляющие различные параметры конфигурации (скорость, режим работы, используемые пины и т.д.)
+* Одна или несколько реализаций (`impl`) трейтов **[embedded-hal]** для этого типа
 
-Such a **HAL implementation** can come in various flavours:
-* Via low-level hardware access, e.g. via registers
-* Via operating system, e.g. by using the `sysfs` under Linux
-* Via adapter, e.g. a mock of types for unit testing
-* Via driver for hardware adapters, e.g. I2C multiplexer or GPIO expander
+Такая **реализация HAL** может быть представлена в различных вариантах:
+* Через низкоуровневый доступ к оборудованию, например, через регистры
+* Через операционную систему, например, с использованием `sysfs` в Linux
+* Через адаптер, например, заглушки типов для модульного тестирования
+* Через драйвер для аппаратных адаптеров, например, мультиплексор I2C или расширитель GPIO
 
-### Driver
+### Драйвер
 
-A driver implements a set of custom functionality for an internal or external component, connected to a peripheral implementing the [embedded-hal] traits. Typical examples for such drivers include various sensors (temperature, magnetometer, accelerometer, light), display devices (LED arrays, LCD displays) and actuators (motors, transmitters).
+Драйвер реализует набор пользовательских функций для внутреннего или внешнего компонента, подключенного к периферийному устройству, реализующему трейты [embedded-hal]. Типичные примеры таких драйверов включают различные датчики (температуры, магнитометр, акселерометр, освещенности), устройства отображения (светодиодные матрицы, ЖК-дисплеи) и исполнительные механизмы (двигатели, передатчики).
 
-A driver has to be initialized with an instance of type that implements a certain `trait` of the [embedded-hal] which is ensured via trait bound and provides its own type instance with a custom set of methods allowing to interact with the driven device.
+Драйвер должен быть инициализирован экземпляром типа, реализующего определенный трейт [embedded-hal], что обеспечивается через ограничение трейта, и предоставляет собственный экземпляр типа с пользовательским набором методов, позволяющих взаимодействовать с управляемым устройством.
 
-### Application
+### Приложение
 
-The application binds the various parts together and ensures that the desired functionality is achieved. When porting between different systems, this is the part which requires the most adaptation efforts, since the application needs to correctly initialize the real hardware via the HAL implementation and the initialisation of different hardware differs, sometimes drastically so. Also the user choice often plays a big role, since components can be physically connected to different terminals, hardware buses sometimes need external hardware to match the configuration or there are different trade-offs to be made in the use of internal peripherals (e.g. multiple timers with different capabilities are available or peripherals conflict with others).
+Приложение объединяет различные части и обеспечивает достижение желаемой функциональности. При переносе между различными системами именно эта часть требует наибольших усилий по адаптации, поскольку приложение должно правильно инициализировать реальное оборудование через реализацию HAL, а инициализация различного оборудования может существенно отличаться. Кроме того, выбор пользователя часто играет большую роль, поскольку компоненты могут быть физически подключены к разным терминалам, шины оборудования иногда требуют внешнего оборудования для соответствия конфигурации, или существуют различные компромиссы в использовании внутренних периферийных устройств (например, доступно несколько таймеров с разными возможностями, или периферийные устройства конфликтуют друг с другом).
 
 [embedded-hal]: https://crates.io/crates/embedded-hal

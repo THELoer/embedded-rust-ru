@@ -1,15 +1,12 @@
-# HAL Design Patterns
+# Шаблоны проектирования HAL
 
-This is a set of common and recommended patterns for writing hardware
-abstraction layers (HALs) for microcontrollers in Rust. These patterns are
-intended to be used in addition to the existing [Rust API Guidelines] when
-writing HALs for microcontrollers.
+Это набор общих и рекомендуемых шаблонов для написания уровней аппаратной абстракции (HAL) для микроконтроллеров на Rust. Эти шаблоны предназначены для использования в дополнение к существующим [Рекомендациям по API Rust] при написании HAL для микроконтроллеров.
 
-[Rust API Guidelines]: https://rust-lang.github.io/api-guidelines/
+[Рекомендациям по API Rust]: https://rust-lang.github.io/api-guidelines/
 
-[Checklist](checklist.md)
+[Контрольный список](checklist.md)
 
-- [Naming](naming.md)
-- [Interoperability](interoperability.md)
-- [Predictability](predictability.md)
+- [Именование](naming.md)
+- [Интероперабельность](interoperability.md)
+- [Предсказуемость](predictability.md)
 - [GPIO](gpio.md)

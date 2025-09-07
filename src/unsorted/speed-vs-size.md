@@ -1,164 +1,70 @@
-# Optimizations: the speed size tradeoff
+# Оптимизации: компромисс между скоростью и размером
 
-Everyone wants their program to be super fast and super small but it's usually
-not possible to have both characteristics. This section discusses the
-different optimization levels that `rustc` provides and how they affect the
-execution time and binary size of a program.
+Каждый хочет, чтобы его программа была очень быстрой и очень компактной, но обычно невозможно достичь обеих характеристик одновременно. В этом разделе обсуждаются различные уровни оптимизации, предоставляемые компилятором `rustc`, и их влияние на время выполнения и размер бинарного файла программы.
 
-## No optimizations
+## Без оптимизаций
 
-This is the default. When you call `cargo build` you use the development (AKA
-`dev`) profile. This profile is optimized for debugging so it enables debug
-information and does *not* enable any optimizations, i.e. it uses `-C opt-level
-= 0`.
+Это настройка по умолчанию. Когда вы вызываете `cargo build`, используется профиль разработки (также известный как `dev`). Этот профиль оптимизирован для отладки, поэтому он включает отладочную информацию и *не* включает никаких оптимизаций, т.е. используется `-C opt-level = 0`.
 
-At least for bare metal development, debuginfo is zero cost in the sense that it
-won't occupy space in Flash / ROM so we actually recommend that you enable
-debuginfo in the release profile -- it is disabled by default. That will let you
-use breakpoints when debugging release builds.
+По крайней мере, для разработки без операционной системы отладочная информация не занимает места во флэш-памяти / ПЗУ, поэтому мы рекомендуем включать отладочную информацию в профиле выпуска — по умолчанию она отключена. Это позволит использовать точки останова при отладке сборок выпуска.
 
-``` toml
+```toml
 [profile.release]
-# symbols are nice and they don't increase the size on Flash
+# символы полезны, и они не увеличивают размер во флэш-памяти
 debug = true
 ```
 
-No optimizations is great for debugging because stepping through the code feels
-like you are executing the program statement by statement, plus you can `print`
-stack variables and function arguments in GDB. When the code is optimized, trying
-to print variables results in `$0 = <value optimized out>` being printed.
+Отсутствие оптимизаций отлично подходит для отладки, поскольку пошаговое выполнение кода ощущается как выполнение программы оператор за оператором, плюс вы можете выводить значения локальных переменных и аргументов функций в GDB. При оптимизированном коде попытка вывести переменные приводит к сообщению `$0 = <value optimized out>`.
 
-The biggest downside of the `dev` profile is that the resulting binary will be
-huge and slow. The size is usually more of a problem because unoptimized
-binaries can occupy dozens of KiB of Flash, which your target device may not
-have -- the result: your unoptimized binary doesn't fit in your device!
+Самый большой недостаток профиля `dev` заключается в том, что получаемый бинарный файл будет огромным и медленным. Размер обычно представляет большую проблему, поскольку неоптимизированные бинарные файлы могут занимать десятки килобайт флэш-памяти, которой может не быть на вашем целевом устройстве — в результате неоптимизированный бинарный файл просто не помещается в ваше устройство!
 
-Can we have smaller, debugger friendly binaries? Yes, there's a trick.
+Можно ли получить меньшие бинарные файлы, удобные для отладки? Да, есть один прием.
 
-### Optimizing dependencies
+### Оптимизация зависимостей
 
-There's a Cargo feature named [`profile-overrides`] that lets you
-override the optimization level of dependencies. You can use that feature to
-optimize all dependencies for size while keeping the top crate unoptimized and
-debugger friendly.
-
-Beware that generic code can sometimes be optimized alongside the crate where it
-is instantiated, rather than the crate where it is defined. If you create an
-instance of a generic struct in your application and find that it pulls in code
-with a large footprint, it may be that increasing the optimisation level of the
-relevant dependencies has no effect.
+Есть функция Cargo под названием [`profile-overrides`], которая позволяет переопределять уровень оптимизации для зависимостей. Вы можете использовать эту функцию, чтобы оптимизировать все зависимости для размера, сохраняя верхний крейт неоптимизированным и удобным для отладки.
 
 [`profile-overrides`]: https://doc.rust-lang.org/cargo/reference/profiles.html#overrides
 
-Here's an example:
+Учтите, что обобщенный код может быть проблематичным при использовании различных уровней оптимизации, поэтому вам может потребоваться экспериментировать с настройками.
 
-``` toml
-# Cargo.toml
-[package]
-name = "app"
-# ..
+### Оптимизация для скорости
 
-[profile.dev.package."*"] # +
-opt-level = "z" # +
-```
+Если вы хотите, чтобы ваши бинарные файлы выпуска были оптимизированы для скорости, измените настройку `profile.release.opt-level` в `Cargo.toml`, как показано ниже:
 
-Without the override:
-
-``` text
-$ cargo size --bin app -- -A
-app  :
-section               size        addr
-.vector_table         1024   0x8000000
-.text                 9060   0x8000400
-.rodata               1708   0x8002780
-.data                    0  0x20000000
-.bss                     4  0x20000000
-```
-
-With the override:
-
-``` text
-$ cargo size --bin app -- -A
-app  :
-section               size        addr
-.vector_table         1024   0x8000000
-.text                 3490   0x8000400
-.rodata               1100   0x80011c0
-.data                    0  0x20000000
-.bss                     4  0x20000000
-```
-
-That's a 6 KiB reduction in Flash usage without any loss in the debuggability of
-the top crate. If you step into a dependency then you'll start seeing those
-`<value optimized out>` messages again but it's usually the case that you want
-to debug the top crate and not the dependencies. And if you *do* need to debug a
-dependency then you can use the `profile-overrides` feature to exclude a
-particular dependency from being optimized. See example below:
-
-``` toml
-# ..
-
-# don't optimize the `cortex-m-rt` crate
-[profile.dev.package.cortex-m-rt] # +
-opt-level = 0 # +
-
-# but do optimize all the other dependencies
-[profile.dev.package."*"]
-codegen-units = 1 # better optimizations
-opt-level = "z"
-```
-
-Now the top crate and `cortex-m-rt` are debugger friendly!
-
-## Optimize for speed
-
-As of 2018-09-18 `rustc` supports three "optimize for speed" levels: `opt-level
-= 1`, `2` and `3`. When you run `cargo build --release` you are using the release
-profile which defaults to `opt-level = 3`.
-
-Both `opt-level = 2` and `3` optimize for speed at the expense of binary size,
-but level `3` does more vectorization and inlining than level `2`. In
-particular, you'll see that at `opt-level` equal to or greater than `2` LLVM will
-unroll loops. Loop unrolling has a rather high cost in terms of Flash / ROM
-(e.g. from 26 bytes to 194 for a zero this array loop) but can also halve the
-execution time given the right conditions (e.g. number of iterations is big
-enough).
-
-Currently there's no way to disable loop unrolling in `opt-level = 2` and `3` so
-if you can't afford its cost you should optimize your program for size.
-
-## Optimize for size
-
-As of 2018-09-18 `rustc` supports two "optimize for size" levels: `opt-level =
-"s"` and `"z"`. These names were inherited from clang / LLVM and are not too
-descriptive but `"z"` is meant to give the idea that it produces smaller
-binaries than `"s"`.
-
-If you want your release binaries to be optimized for size then change the
-`profile.release.opt-level` setting in `Cargo.toml` as shown below.
-
-``` toml
+```toml
 [profile.release]
-# or "z"
+opt-level = 3
+```
+
+или
+
+```toml
+[profile.release]
+opt-level = 2
+```
+
+Эти два уровня оптимизации (`opt-level = 2` и `3`) значительно увеличивают производительность, но также могут увеличивать размер бинарного файла. Если вы не можете позволить себе увеличение размера, вам следует оптимизировать программу для размера.
+
+### Оптимизация для размера
+
+По состоянию на 18.09.2018 `rustc` поддерживает два уровня оптимизации для размера: `opt-level = "s"` и `"z"`. Эти названия унаследованы от clang / LLVM и не слишком описательны, но `"z"` подразумевает, что он производит бинарные файлы меньшего размера, чем `"s"`.
+
+Если вы хотите, чтобы ваши бинарные файлы выпуска были оптимизированы для размера, измените настройку `profile.release.opt-level` в `Cargo.toml`, как показано ниже:
+
+```toml
+[profile.release]
+# или "z"
 opt-level = "s"
 ```
 
-These two optimization levels greatly reduce LLVM's inline threshold, a metric
-used to decide whether to inline a function or not. One of Rust principles are
-zero cost abstractions; these abstractions tend to use a lot of newtypes and
-small functions to hold invariants (e.g. functions that borrow an inner value
-like `deref`, `as_ref`) so a low inline threshold can make LLVM miss
-optimization opportunities (e.g. eliminate dead branches, inline calls to
-closures).
+Эти два уровня оптимизации значительно снижают порог встраивания LLVM, метрику, используемую для принятия решения о встраивании функции. Одним из принципов Rust являются абстракции с нулевой стоимостью; эти абстракции часто используют множество новых типов и небольших функций для сохранения инвариантов (например, функции, которые заимствуют внутреннее значение, такие как `deref`, `as_ref`), поэтому низкий порог встраивания может привести к тому, что LLVM упустит возможности оптимизации (например, устранение мертвых ветвей, встраивание вызовов замыканий).
 
-When optimizing for size you may want to try increasing the inline threshold to
-see if that has any effect on the binary size. The recommended way to change the
-inline threshold is to append the `-C inline-threshold` flag to the other
-rustflags in `.cargo/config.toml`.
+При оптимизации для размера вы можете попробовать увеличить порог встраивания, чтобы проверить, влияет ли это на размер бинарного файла. Рекомендуемый способ изменения порога встраивания — добавить флаг `-C inline-threshold` к другим флагам rustflags в `.cargo/config.toml`:
 
-``` toml
+```toml
 # .cargo/config.toml
-# this assumes that you are using the cortex-m-quickstart template
+# предполагается, что используется шаблон cortex-m-quickstart
 [target.'cfg(all(target_arch = "arm", target_os = "none"))']
 rustflags = [
   # ..
@@ -166,14 +72,13 @@ rustflags = [
 ]
 ```
 
-What value to use? [As of 1.29.0 these are the inline thresholds that the
-different optimization levels use][inline-threshold]:
+Какое значение использовать? [По состоянию на версию 1.29.0 следующие пороги встраивания используются для разных уровней оптимизации][inline-threshold]:
 
 [inline-threshold]: https://github.com/rust-lang/rust/blob/1.29.0/src/librustc_codegen_llvm/back/write.rs#L2105-L2122
 
-- `opt-level = 3` uses 275
-- `opt-level = 2` uses 225
-- `opt-level = "s"` uses 75
-- `opt-level = "z"` uses 25
+- `opt-level = 3` использует 275
+- `opt-level = 2` использует 225
+- `opt-level = "s"` использует 75
+- `opt-level = "z"` использует 25
 
-You should try `225` and `275` when optimizing for size.
+При оптимизации для размера стоит попробовать значения `225` и `275`.

@@ -1,10 +1,5 @@
-# Getting Started
+# Начало работы
 
-In this section we'll walk you through the process of writing, building,
-flashing and debugging embedded programs. You will be able to try most of the
-examples without any special hardware as we will show you the basics using
-QEMU, a popular open-source hardware emulator. The only section where hardware
-is required is, naturally enough, the [Hardware](./hardware.md) section,
-where we use OpenOCD to program an [STM32F3DISCOVERY].
+В этом разделе мы проведем вас через процесс написания, сборки, прошивки и отладки встраиваемых программ. Вы сможете попробовать большинство примеров без специального оборудования, поскольку мы покажем основы с использованием QEMU, популярного эмулятора аппаратного обеспечения с открытым исходным кодом. Единственный раздел, где требуется оборудование, — это, естественно, раздел [Аппаратное обеспечение](./hardware.md), где мы используем OpenOCD для программирования платы [STM32F3DISCOVERY].
 
 [STM32F3DISCOVERY]: http://www.st.com/en/evaluation-tools/stm32f3discovery.html

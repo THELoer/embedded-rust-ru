@@ -1,24 +1,16 @@
-# Predictability
-
+# Предсказуемость
 
 <a id="c-ctor"></a>
-## Constructors are used instead of extension traits (C-CTOR)
+## Используются конструкторы вместо трейтов-расширений (C-CTOR)
 
-All peripherals to which the HAL adds functionality should be wrapped in a new
-type, even if no additional fields are required for that functionality.
+Все периферийные устройства, для которых HAL добавляет функциональность, должны быть обернуты в новый тип, даже если для этой функциональности не требуются дополнительные поля.
 
-Extension traits implemented for the raw peripheral should be avoided.
+Следует избегать реализации трейтов-расширений для исходного периферийного устройства.
 
 <a id="c-inline"></a>
-## Methods are decorated with `#[inline]` where appropriate (C-INLINE)
+## Методы помечены `#[inline]` там, где это уместно (C-INLINE)
 
-The Rust compiler does not by default perform full inlining across crate
-boundaries. As embedded applications are sensitive to unexpected code size
-increases, `#[inline]` should be used to guide the compiler as follows:
+Компилятор Rust по умолчанию не выполняет полное встраивание через границы крейтов. Поскольку приложения для встраиваемых систем чувствительны к неожиданным увеличениям размера кода, `#[inline]` следует использовать для направления компилятора следующим образом:
 
-* All "small" functions should be marked `#[inline]`. What qualifies as "small"
-  is subjective, but generally all functions that are expected to compile down
-  to single-digit instruction sequences qualify as small.
-* Functions that are very likely to take constant values as parameters should be
-  marked as `#[inline]`. This enables the compiler to compute even complicated
-  initialization logic at compile time, provided the function inputs are known.
+* Все "маленькие" функции должны быть помечены `#[inline]`. Что считать "маленьким" — субъективно, но, как правило, все функции, которые компилируются в последовательности инструкций с однозначным количеством, считаются маленькими.
+* Функции, которые с высокой вероятностью принимают константные значения в качестве параметров, должны быть помечены `#[inline]`. Это позволяет компилятору вычислять даже сложную логику инициализации во время компиляции, если входные данные функции известны.

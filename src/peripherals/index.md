@@ -1,44 +1,44 @@
-# Peripherals
+# Периферийные устройства
 
-## What are Peripherals?
+## Что такое периферийные устройства?
 
-Most Microcontrollers have more than just a CPU, RAM, or Flash Memory - they contain sections of silicon which are used for interacting with systems outside of the microcontroller, as well as directly and indirectly interacting with their surroundings in the world via sensors, motor controllers, or human interfaces such as a display or keyboard. These components are collectively known as Peripherals.
+Большинство микроконтроллеров имеют не только процессор, оперативную память или флэш-память — они содержат участки кремния, которые используются для взаимодействия с системами вне микроконтроллера, а также для прямого и косвенного взаимодействия с окружающим миром через датчики, контроллеры двигателей или интерфейсы для человека, такие как дисплей или клавиатура. Эти компоненты в совокупности называются периферийными устройствами.
 
-These peripherals are useful because they allow a developer to offload processing to them, avoiding having to handle everything in software. Similar to how a desktop developer would offload graphics processing to a video card, embedded developers can offload some tasks to peripherals allowing the CPU to spend its time doing something else important, or doing nothing in order to save power.
+Эти периферийные устройства полезны, потому что позволяют разработчику переложить обработку на них, избегая необходимости обрабатывать все в программном обеспечении. Подобно тому, как разработчик настольных приложений перекладывает обработку графики на видеокарту, разработчики встраиваемых систем могут переложить некоторые задачи на периферийные устройства, позволяя процессору заниматься чем-то другим важным или вообще ничего не делать, чтобы сэкономить энергию.
 
-If you look at the main circuit board in an old-fashioned home computer from the 1970s or 1980s (and actually, the desktop PCs of yesterday are not so far removed from the embedded systems of today) you would expect to see:
+Если посмотреть на основную печатную плату старомодного домашнего компьютера 1970-х или 1980-х годов (а на самом деле настольные ПК прошлого не так уж далеки от современных встраиваемых систем), вы ожидаете увидеть:
 
-* A processor
-* A RAM chip
-* A ROM chip
-* An I/O controller
+* Процессор
+* Чип оперативной памяти
+* Чип ПЗУ
+* Контроллер ввода-вывода
 
-The RAM chip, ROM chip and I/O controller (the peripheral in this system) would be joined to the processor through a series of parallel traces known as a 'bus'. This bus carries address information, which selects which device on the bus the processor wishes to communicate with, and a data bus which carries the actual data. In our embedded microcontrollers, the same principles apply - it's just that everything is packed on to a single piece of silicon.
+Чип оперативной памяти, чип ПЗУ и контроллер ввода-вывода (периферийное устройство в этой системе) будут соединены с процессором через серию параллельных дорожек, известных как "шина". Эта шина передает адресную информацию, которая выбирает, с каким устройством на шине процессор хочет взаимодействовать, и шину данных, которая передает фактические данные. В наших встраиваемых микроконтроллерах применяются те же принципы — просто все упаковано на одном куске кремния.
 
-However, unlike graphics cards, which typically have a Software API like Vulkan, Metal, or OpenGL, peripherals are exposed to our Microcontroller with a hardware interface, which is mapped to a chunk of the memory.
+Однако, в отличие от видеокарт, которые обычно имеют программный API, такой как Vulkan, Metal или OpenGL, периферийные устройства в микроконтроллерах представлены через аппаратный интерфейс, который отображается на участок памяти.
 
-## Linear and Real Memory Space
+## Линейное и реальное адресное пространство
 
-On a microcontroller, writing some data to some other arbitrary address, such as `0x4000_0000` or `0x0000_0000`, may also be a completely valid action.
+На микроконтроллере запись данных по произвольному адресу, например `0x4000_0000` или `0x0000_0000`, может быть полностью корректной операцией.
 
-On a desktop system, access to memory is tightly controlled by the MMU, or Memory Management Unit. This component has two major responsibilities: enforcing access permission to sections of memory (preventing one process from reading or modifying the memory of another process); and re-mapping segments of the physical memory to virtual memory ranges used in software. Microcontrollers do not typically have an MMU, and instead only use real physical addresses in software.
+На настольной системе доступ к памяти строго контролируется MMU (Memory Management Unit, блок управления памятью). Этот компонент выполняет две основные функции: обеспечение доступа...
 
-Although 32 bit microcontrollers have a real and linear address space from `0x0000_0000`, and `0xFFFF_FFFF`, they generally only use a few hundred kilobytes of that range for actual memory. This leaves a significant amount of address space remaining. In earlier chapters, we were talking about RAM being located at address `0x2000_0000`. If our RAM was 64 KiB long (i.e. with a maximum address of 0xFFFF) then addresses `0x2000_0000` to `0x2000_FFFF` would correspond to our RAM. When we write to a variable which lives at address `0x2000_1234`, what happens internally is that some logic detects the upper portion of the address (0x2000 in this example) and then activates the RAM so that it can act upon the lower portion of the address (0x1234 in this case). On a Cortex-M we also have our Flash ROM mapped in at address `0x0000_0000` up to, say, address `0x0007_FFFF` (if we have a 512 KiB Flash ROM). Rather than ignore all remaining space between these two regions, Microcontroller designers instead mapped the interface for peripherals in certain memory locations. This ends up looking something like this:
+На микроконтроллере адресное пространство используется иначе. Например, как упоминалось в предыдущих главах, оперативная память может быть расположена по адресу `0x2000_0000`. Если наша оперативная память имеет размер 64 КиБ (т.е. максимальный адрес `0x2000_FFFF`), то адреса от `0x2000_0000` до `0x2000_FFFF` будут соответствовать нашей оперативной памяти. Когда мы записываем в переменную, находящуюся по адресу `0x2000_1234`, внутри происходит логика, которая определяет верхнюю часть адреса (в данном случае `0x2000`) и активирует оперативную память, чтобы она могла работать с нижней частью адреса (`0x1234` в данном случае). На Cortex-M у нас также есть флэш-ПЗУ, отображенное по адресу `0x0000_0000` до, скажем, адреса `0x0007_FFFF` (если у нас флэш-ПЗУ на 512 КиБ). Вместо того чтобы игнорировать все оставшееся пространство между этими двумя областями, разработчики микроконтроллеров отобразили интерфейс для периферийных устройств на определенные адреса памяти. Это выглядит примерно так:
 
 ![](../assets/nrf52-memory-map.png)
 
-[Nordic nRF52832 Datasheet (pdf)]
+[Техническое описание Nordic nRF52832 (pdf)]
 
-## Memory Mapped Peripherals
+## Отображенные в память периферийные устройства
 
-Interaction with these peripherals is simple at a first glance - write the right data to the correct address. For example, sending a 32 bit word over a serial port could be as direct as writing that 32 bit word to a certain memory address. The Serial Port Peripheral would then take over and send out the data automatically.
+Взаимодействие с этими периферийными устройствами на первый взгляд кажется простым — запишите правильные данные по правильному адресу. Например, отправка 32-битного слова через последовательный порт может быть настолько же простой, как запись этого 32-битного слова по определенному адресу памяти. Периферийное устройство последовательного порта затем возьмет на себя задачу и автоматически отправит данные.
 
-Configuration of these peripherals works similarly. Instead of calling a function to configure a peripheral, a chunk of memory is exposed which serves as the hardware API. Write `0x8000_0000` to a SPI Frequency Configuration Register, and the SPI port will send data at 8 Megabits per second. Write `0x0200_0000` to the same address, and the SPI port will send data at 125 Kilobits per second. These configuration registers look a little bit like this:
+Конфигурация этих периферийных устройств работает аналогично. Вместо вызова функции для настройки периферийного устройства предоставляется участок памяти, который служит аппаратным API. Запишите `0x8000_0000` в регистр конфигурации частоты SPI, и порт SPI будет отправлять данные со скоростью 8 мегабит в секунду. Запишите `0x0200_0000` по тому же адресу, и порт SPI будет отправлять данные со скоростью 125 килобит в секунду. Эти регистры конфигурации выглядят примерно так:
 
 ![](../assets/nrf52-spi-frequency-register.png)
 
-[Nordic nRF52832 Datasheet (pdf)]
+[Техническое описание Nordic nRF52832 (pdf)]
 
-This interface is how interactions with the hardware are made, no matter what language is used, whether that language is Assembly, C, or Rust.
+Этот интерфейс — способ взаимодействия с аппаратным обеспечением, независимо от используемого языка, будь то ассемблер, C или Rust.
 
-[Nordic nRF52832 Datasheet (pdf)]: http://infocenter.nordicsemi.com/pdf/nRF52832_PS_v1.1.pdf
+[Техническое описание Nordic nRF52832 (pdf)]: http://infocenter.nordicsemi.com/pdf/nRF52832_PS_v1.1.pdf

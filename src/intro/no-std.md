@@ -1,66 +1,67 @@
-# A `no_std` Rust Environment
+# Окружение Rust с `no_std`
 
-The term Embedded Programming is used for a wide range of different classes of programming.
-Ranging from programming 8-Bit MCUs (like the [ST72325xx](https://www.st.com/resource/en/datasheet/st72325j6.pdf))
-with just a few KB of RAM and ROM, up to systems like the Raspberry Pi
-([Model B 3+](https://en.wikipedia.org/wiki/Raspberry_Pi#Specifications)) which has a 32/64-bit
-4-core Cortex-A53 @ 1.4 GHz and 1GB of RAM. Different restrictions/limitations will apply when writing code
-depending on what kind of target and use case you have.
+Термин "встраиваемое программирование" используется для широкого спектра классов программирования.
+От программирования 8-битных микроконтроллеров (например, [ST72325xx](https://www.st.com/resource/en/datasheet/st72325j6.pdf))
+с всего несколькими КБ ОЗУ и ПЗУ до систем вроде Raspberry Pi
+([Model B 3+](https://en.wikipedia.org/wiki/Raspberry_Pi#Specifications)), которая имеет 32/64-битный 4-ядерный процессор Cortex-A53 с частотой 1.4 ГГц и 1 ГБ ОЗУ. Разные ограничения применяются при написании кода в зависимости от цели и случая использования.
 
-There are two general Embedded Programming classifications:
+Существуют два общих класса встраиваемого программирования:
 
-## Hosted Environments
-These kinds of environments are close to a normal PC environment.
-What this means is that you are provided with a System Interface [E.G. POSIX](https://en.wikipedia.org/wiki/POSIX)
-that provides you with primitives to interact with various systems, such as file systems, networking, memory management, threads, etc.
-Standard libraries in turn usually depend on these primitives to implement their functionality.
-You may also have some sort of sysroot and restrictions on RAM/ROM-usage, and perhaps some
-special HW or I/Os. Overall it feels like coding on a special-purpose PC environment.
+## Хостинговые окружения
 
-## Bare Metal Environments
-In a bare metal environment no code has been loaded before your program.
-Without the software provided by an OS we can not load the standard library.
-Instead the program, along with the crates it uses, can only use the hardware (bare metal) to run.
-To prevent rust from loading the standard library use `no_std`.
-The platform-agnostic parts of the standard library are available through [libcore](https://doc.rust-lang.org/core/).
-libcore also excludes things which are not always desirable in an embedded environment.
-One of these things is a memory allocator for dynamic memory allocation.
-If you require this or any other functionalities there are often crates which provide these.
+Такие окружения близки к обычному окружению ПК.
+Это означает, что предоставляется системный интерфейс [например, POSIX](https://en.wikipedia.org/wiki/POSIX),
+который дает примитивы для взаимодействия с различными системами, такими как файловые системы, сеть, управление памятью, потоки и т.д.
+Стандартные библиотеки, в свою очередь, обычно зависят от этих примитивов для реализации своей функциональности.
+Также может быть sysroot и ограничения на использование ОЗУ/ПЗУ, а также специальное оборудование или ввод/вывод. В целом это похоже на программирование в специальной среде ПК.
 
-### The libstd Runtime
-As mentioned before using [libstd](https://doc.rust-lang.org/std/) requires some sort of system integration, but this is not only because
-[libstd](https://doc.rust-lang.org/std/) is just providing a common way of accessing OS abstractions, it also provides a runtime.
-This runtime, among other things, takes care of setting up stack overflow protection, processing command line arguments,
-and spawning the main thread before a program's main function is invoked. This runtime also won't be available in a `no_std` environment.
+## Окружения без ОС (Bare Metal)
 
-## Summary
-`#![no_std]` is a crate-level attribute that indicates that the crate will link to the core-crate instead of the std-crate.
-The [libcore](https://doc.rust-lang.org/core/) crate in turn is a platform-agnostic subset of the std crate
-which makes no assumptions about the system the program will run on.
-As such, it provides APIs for language primitives like floats, strings and slices, as well as APIs that expose processor features
-like atomic operations and SIMD instructions. However it lacks APIs for anything that involves platform integration.
-Because of these properties no\_std and [libcore](https://doc.rust-lang.org/core/) code can be used for any kind of
-bootstrapping (stage 0) code like bootloaders, firmware or kernels.
+В окружении без ОС (bare metal) перед вашей программой не загружено никакого кода.
+Без ПО, предоставляемого ОС, мы не можем загрузить стандартную библиотеку.
+Вместо этого программа вместе с используемыми крейтами может использовать только аппаратное обеспечение (bare metal) для выполнения.
+Чтобы предотвратить загрузку стандартной библиотеки Rust, используйте `no_std`.
+Части стандартной библиотеки, не зависящие от платформы, доступны через [libcore](https://doc.rust-lang.org/core/).
+libcore также исключает вещи, которые не всегда желательны в окружении встраиваемых систем.
+Одна из них — распределитель памяти для динамического выделения памяти.
+Если требуется это или другие функциональности, часто есть крейты, которые их предоставляют.
 
-### Overview
+### Runtime libstd
 
-| feature                                                   | no\_std | std |
+Как упоминалось ранее, использование [libstd](https://doc.rust-lang.org/std/) требует некоторой системной интеграции, но не только потому,
+что [libstd](https://doc.rust-lang.org/std/) просто предоставляет общий способ доступа к абстракциям ОС, она также предоставляет runtime.
+Эта runtime, среди прочего, настраивает защиту от переполнения стека, обрабатывает аргументы командной строки
+и порождает основной поток перед вызовом главной функции программы. Эта runtime также недоступна в окружении `no_std`.
+
+## Итог
+
+`#![no_std]` — это атрибут на уровне крейта, указывающий, что крейт будет ссылаться на крейт core вместо std.
+Крейт [libcore](https://doc.rust-lang.org/core/), в свою очередь, — это подмножество std, не зависящее от платформы,
+которое не делает предположений о системе, на которой будет работать программа.
+Таким образом, он предоставляет API для языковых примитивов, таких как числа с плавающей запятой, строки и слайсы, а также API, раскрывающие функции процессора,
+такие как атомарные операции и инструкции SIMD. Однако он не предоставляет API для чего-либо, что включает интеграцию с платформой.
+Благодаря этим свойствам код с no_std и [libcore](https://doc.rust-lang.org/core/) может использоваться для любого вида
+загрузочного (stage 0) кода, такого как загрузчики, прошивки или ядра.
+
+### Обзор
+
+| Функция                                                   | no_std | std |
 |-----------------------------------------------------------|--------|-----|
-| heap (dynamic memory)                                     |   *    |  ✓  |
-| collections (Vec, BTreeMap, etc)                          |  **    |  ✓  |
-| stack overflow protection                                 |   ✘    |  ✓  |
-| runs init code before main                                |   ✘    |  ✓  |
-| libstd available                                          |   ✘    |  ✓  |
-| libcore available                                         |   ✓    |  ✓  |
-| writing firmware, kernel, or bootloader code              |   ✓    |  ✘  |
+| куча (динамическая память)                                |   *    |  ✓  |
+| коллекции (Vec, BTreeMap и т.д.)                          |  **    |  ✓  |
+| защита от переполнения стека                              |   ✘    |  ✓  |
+| выполнение кода инициализации перед main                  |   ✘    |  ✓  |
+| доступна libstd                                           |   ✘    |  ✓  |
+| доступна libcore                                          |   ✓    |  ✓  |
+| написание прошивки, ядра или кода загрузчика              |   ✓    |  ✘  |
 
-\* Only if you use the `alloc` crate and use a suitable allocator like [alloc-cortex-m].
+\* Только если вы используете крейт `alloc` и подходящий распределитель, такой как [alloc-cortex-m].
 
-\** Only if you use the `collections` crate and configure a global default allocator.
+\** Только если вы используете крейт `collections` и настраиваете глобальный распределитель по умолчанию.
 
-\** HashMap and HashSet are not available due to a lack of a secure random number generator.
+\** HashMap и HashSet недоступны из-за отсутствия безопасного генератора случайных чисел.
 
 [alloc-cortex-m]: https://github.com/rust-embedded/alloc-cortex-m
 
-## See Also
+## См. также
 * [RFC-1184](https://github.com/rust-lang/rfcs/blob/master/text/1184-stabilize-no_std.md)

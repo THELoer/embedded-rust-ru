@@ -1,17 +1,17 @@
-# HAL Design Patterns Checklist
+# Контрольный список шаблонов проектирования HAL
 
-- **Naming** *(crate aligns with Rust naming conventions)*
-  - [ ] The crate is named appropriately ([C-CRATE-NAME])
-- **Interoperability** *(crate interacts nicely with other library functionality)*
-  - [ ] Wrapper types provide a destructor method ([C-FREE])
-  - [ ] HALs reexport their register access crate ([C-REEXPORT-PAC])
-  - [ ] Types implement the `embedded-hal` traits ([C-HAL-TRAITS])
-- **Predictability** *(crate enables legible code that acts how it looks)*
-  - [ ] Constructors are used instead of extension traits ([C-CTOR])
-- **GPIO Interfaces** *(GPIO Interfaces follow a common pattern)*
-  - [ ] Pin types are zero-sized by default ([C-ZST-PIN])
-  - [ ] Pin types provide methods to erase pin and port ([C-ERASED-PIN])
-  - [ ] Pin state should be encoded as type parameters ([C-PIN-STATE])
+- **Именование** *(крейт соответствует соглашениям об именовании в Rust)*
+  - [ ] Крейт назван правильно ([C-CRATE-NAME])
+- **Взаимодействие** *(крейт хорошо взаимодействует с функциональностью других библиотек)*
+  - [ ] Типы-обертки предоставляют метод деструктора ([C-FREE])
+  - [ ] HAL переэкспортируют свой крейт доступа к регистрам ([C-REEXPORT-PAC])
+  - [ ] Типы реализуют трейты `embedded-hal` ([C-HAL-TRAITS])
+- **Предсказуемость** *(крейт позволяет писать читаемый код, который работает так, как выглядит)*
+  - [ ] Используются конструкторы вместо трейтов расширения ([C-CTOR])
+- **Интерфейсы GPIO** *(Интерфейсы GPIO следуют общему шаблону)*
+  - [ ] Типы пинов по умолчанию нулевого размера ([C-ZST-PIN])
+  - [ ] Типы пинов предоставляют методы для стирания пина и порта ([C-ERASED-PIN])
+  - [ ] Состояние пина должно быть закодировано как параметры типа ([C-PIN-STATE])
 
 [C-CRATE-NAME]: naming.html#c-crate-name
 

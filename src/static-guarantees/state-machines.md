@@ -1,62 +1,62 @@
-# Peripherals as State Machines
+# Периферийные устройства как конечные автоматы
 
-The peripherals of a microcontroller can be thought of as set of state machines. For example, the configuration of a simplified [GPIO pin] could be represented as the following tree of states:
+Периферийные устройства микроконтроллера можно рассматривать как набор конечных автоматов. Например, конфигурация упрощенного [GPIO-пина] может быть представлена следующим деревом состояний:
 
-[GPIO pin]: https://en.wikipedia.org/wiki/General-purpose_input/output
+[GPIO-пин]: https://en.wikipedia.org/wiki/General-purpose_input/output
 
-* Disabled
-* Enabled
-    * Configured as Output
-        * Output: High
-        * Output: Low
-    * Configured as Input
-        * Input: High Resistance
-        * Input: Pulled Low
-        * Input: Pulled High
+* Отключен
+* Включен
+    * Настроен как выход
+        * Выход: Высокий
+        * Выход: Низкий
+    * Настроен как вход
+        * Вход: Высокое сопротивление
+        * Вход: Подтяжка вниз
+        * Вход: Подтяжка вверх
 
-If the peripheral starts in the `Disabled` mode, to move to the `Input: High Resistance` mode, we must perform the following steps:
+Если периферийное устройство начинается в режиме `Отключен`, для перехода в режим `Вход: Высокое сопротивление` необходимо выполнить следующие шаги:
 
-1. Disabled
-2. Enabled
-3. Configured as Input
-4. Input: High Resistance
+1. Отключен
+2. Включен
+3. Настроен как вход
+4. Вход: Высокое сопротивление
 
-If we wanted to move from `Input: High Resistance` to `Input: Pulled Low`, we must perform the following steps:
+Если мы хотим перейти из `Вход: Высокое сопротивление` в `Вход: Подтяжка вниз`, необходимо выполнить следующие шаги:
 
-1. Input: High Resistance
-2. Input: Pulled Low
+1. Вход: Высокое сопротивление
+2. Вход: Подтяжка вниз
 
-Similarly, if we want to move a GPIO pin from configured as `Input: Pulled Low` to `Output: High`, we must perform the following steps:
+Аналогично, если мы хотим перевести GPIO-пин из режима `Вход: Подтяжка вниз` в `Выход: Высокий`, необходимо выполнить следующие шаги:
 
-1. Input: Pulled Low
-2. Configured as Input
-3. Configured as Output
-4. Output: High
+1. Вход: Подтяжка вниз
+2. Настроен как вход
+3. Настроен как выход
+4. Выход: Высокий
 
-## Hardware Representation
+## Аппаратное представление
 
-Typically the states listed above are set by writing values to given registers mapped to a GPIO peripheral. Let's define an imaginary GPIO Configuration Register to illustrate this:
+Обычно перечисленные выше состояния устанавливаются путем записи значений в заданные регистры, отображенные на периферийное устройство GPIO. Давайте определим воображаемый регистр конфигурации GPIO для иллюстрации:
 
-| Name         | Bit Number(s) | Value | Meaning   | Notes |
-| ---:         | ------------: | ----: | ------:   | ----: |
-| enable       | 0             | 0     | disabled  | Disables the GPIO |
-|              |               | 1     | enabled   | Enables the GPIO |
-| direction    | 1             | 0     | input     | Sets the direction to Input |
-|              |               | 1     | output    | Sets the direction to Output |
-| input_mode   | 2..3          | 00    | hi-z      | Sets the input as high resistance |
-|              |               | 01    | pull-low  | Input pin is pulled low |
-|              |               | 10    | pull-high | Input pin is pulled high |
-|              |               | 11    | n/a       | Invalid state. Do not set |
-| output_mode  | 4             | 0     | set-low   | Output pin is driven low |
-|              |               | 1     | set-high  | Output pin is driven high |
-| input_status | 5             | x     | in-val    | 0 if input is < 1.5v, 1 if input >= 1.5v |
+| Имя          | Бит(ы)        | Значение | Значение        | Примечания |
+|--------------|--------------|---------|----------------|-----------|
+| enable       | 0            | 0       | отключено      | Отключает GPIO |
+|              |              | 1       | включено       | Включает GPIO |
+| direction    | 1            | 0       | вход           | Устанавливает направление на вход |
+|              |              | 1       | выход          | Устанавливает направление на выход |
+| input_mode   | 2..3         | 00      | высокое сопротивление | Устанавливает вход как высокое сопротивление |
+|              |              | 01      | подтяжка вниз  | Входной пин подтянут вниз |
+|              |              | 10      | подтяжка вверх | Входной пин подтянут вверх |
+|              |              | 11      | н/д            | Недопустимое состояние. Не устанавливать |
+| output_mode  | 4            | 0       | установить низкий | Выходной пин притянут к низкому уровню |
+|              |              | 1       | установить высокий | Выходной пин притянут к высокому уровню |
+| input_status | 5            | x       | входное значение | 0, если вход < 1.5 В, 1, если вход >= 1.5 В |
 
-We _could_ expose the following structure in Rust to control this GPIO:
+Мы *могли бы* предоставить следующую структуру в Rust для управления этим GPIO:
 
 ```rust,ignore
-/// GPIO interface
+/// Интерфейс GPIO
 struct GpioConfig {
-    /// GPIO Configuration structure generated by svd2rust
+    /// Структура конфигурации GPIO, сгенерированная svd2rust
     periph: GPIO_CONFIG,
 }
 
@@ -91,8 +91,8 @@ impl GpioConfig {
 }
 ```
 
-However, this would allow us to modify certain registers that do not make sense. For example, what happens if we set the `output_mode` field when our GPIO is configured as an input? 
+Однако это позволило бы нам изменять определенные регистры, что не имеет смысла. Например, что произойдет, если мы установим поле `output_mode`, когда наш GPIO настроен как вход?
 
-In general, use of this structure would allow us to reach states not defined by our state machine above: e.g. an output that is pulled low, or an input that is set high. For some hardware, this may not matter. On other hardware, it could cause unexpected or undefined behavior!
+В общем, использование этой структуры позволило бы нам достичь состояний, не определенных в нашем конечном автомате выше: например, выход, который подтянут вниз, или вход, который установлен на высокий уровень. Для некоторого оборудования это может не иметь значения. На другом оборудовании это может вызвать неожиданное или неопределенное поведение!
 
-Although this interface is convenient to write, it doesn't enforce the design contracts set out by our hardware implementation.
+Хотя этот интерфейс удобен для написания, он не обеспечивает соблюдение контрактов проектирования, установленных нашей аппаратной реализацией.

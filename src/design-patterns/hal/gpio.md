@@ -1,16 +1,13 @@
-# Recommendations for GPIO Interfaces
+# Рекомендации для интерфейсов GPIO
 
 <a id="c-zst-pin"></a>
-## Pin types are zero-sized by default (C-ZST-PIN)
+## Типы пинов по умолчанию имеют нулевой размер (C-ZST-PIN)
 
-GPIO Interfaces exposed by the HAL should provide dedicated zero-sized types for
-each pin on every interface or port, resulting in a zero-cost GPIO abstraction
-when all pin assignments are statically known.
+Интерфейсы GPIO, предоставляемые HAL, должны предоставлять выделенные типы нулевого размера для каждого пина на каждом интерфейсе или порте, обеспечивая абстракцию GPIO с нулевыми накладными расходами, когда все назначения пинов статически известны.
 
-Each GPIO Interface or Port should implement a `split` method returning a
-struct with every pin.
+Каждый интерфейс или порт GPIO должен реализовывать метод `split`, возвращающий структуру со всеми пинами.
 
-Example:
+Пример:
 
 ```rust
 pub struct PA0;
@@ -37,15 +34,14 @@ pub struct PortAPins {
 ```
 
 <a id="c-erased-pin"></a>
-## Pin types provide methods to erase pin and port (C-ERASED-PIN)
+## Типы пинов предоставляют методы для стирания пина и порта (C-ERASED-PIN)
 
-Pins should provide type erasure methods that move their properties from
-compile time to runtime, and allow more flexibility in applications.
+Пины должны предоставлять методы стирания типов, которые переводят их свойства из времени компиляции во время выполнения, обеспечивая большую гибкость в приложениях.
 
-Example:
+Пример:
 
 ```rust
-/// Port A, pin 0.
+/// Порт A, пин 0.
 pub struct PA0;
 
 impl PA0 {
@@ -54,9 +50,9 @@ impl PA0 {
     }
 }
 
-/// A pin on port A.
+/// Пин на порте A.
 pub struct PA {
-    /// The pin number.
+    /// Номер пина.
     pin: u8,
 }
 
@@ -72,7 +68,7 @@ impl PA {
 pub struct Pin {
     port: Port,
     pin: u8,
-    // (these fields can be packed to reduce the memory footprint)
+    // (эти поля могут быть упакованы для уменьшения занимаемой памяти)
 }
 
 enum Port {
@@ -84,47 +80,17 @@ enum Port {
 ```
 
 <a id="c-pin-state"></a>
-## Pin state should be encoded as type parameters (C-PIN-STATE)
+## Состояние пина должно быть закодировано в параметрах типа (C-PIN-STATE)
 
-Pins may be configured as input or output with different characteristics
-depending on the chip or family. This state should be encoded in the type system
-to prevent use of pins in incorrect states.
+Пины могут быть настроены как вход или выход с различными характеристиками в зависимости от микросхемы или семейства. Это состояние должно быть закодировано в системе типов, чтобы предотвратить использование пинов в некорректных состояниях.
 
-Additional, chip-specific state (eg. drive strength) may also be encoded in this
-way, using additional type parameters.
+Дополнительное, специфичное для микросхемы состояние (например, сила тока) также может быть закодировано таким образом с использованием дополнительных параметров типа.
 
-Methods for changing the pin state should be provided as `into_input` and
-`into_output` methods.
+Методы для изменения состояния пина должны предоставляться как `into_input` и `into_output`.
 
-Additionally, `with_{input,output}_state` methods should be provided that
-temporarily reconfigure a pin in a different state without moving it.
+Кроме того, должны быть предоставлены методы `with_input_state` и `with_output_state`, которые временно изменяют состояние пина.
 
-The following methods should be provided for every pin type (that is, both
-erased and non-erased pin types should provide the same API):
-
-* `pub fn into_input<N: InputState>(self, input: N) -> Pin<N>`
-* `pub fn into_output<N: OutputState>(self, output: N) -> Pin<N>`
-* ```ignore
-  pub fn with_input_state<N: InputState, R>(
-      &mut self,
-      input: N,
-      f: impl FnOnce(&mut PA1<N>) -> R,
-  ) -> R
-  ```
-* ```ignore
-  pub fn with_output_state<N: OutputState, R>(
-      &mut self,
-      output: N,
-      f: impl FnOnce(&mut PA1<N>) -> R,
-  ) -> R
-  ```
-
-
-Pin state should be bounded by sealed traits. Users of the HAL should have no
-need to add their own state. The traits can provide HAL-specific methods
-required to implement the pin state API.
-
-Example:
+Пример:
 
 ```rust
 # use std::marker::PhantomData;
@@ -201,5 +167,5 @@ impl<S: PinState> PA1<S> {
     }
 }
 
-// Same for `PA` and `Pin`, and other pin types.
+// То же самое для `PA` и `Pin`, и других типов пинов.
 ```

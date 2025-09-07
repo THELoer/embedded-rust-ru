@@ -1,31 +1,22 @@
-# Collections
+# Коллекции
 
-Eventually you'll want to use dynamic data structures (AKA collections) in your
-program. `std` provides a set of common collections: [`Vec`], [`String`],
-[`HashMap`], etc. All the collections implemented in `std` use a global dynamic
-memory allocator (AKA the heap).
+В конечном итоге вы захотите использовать динамические структуры данных (также известные как коллекции) в вашей программе. `std` предоставляет набор общих коллекций: [`Vec`], [`String`], [`HashMap`] и т.д. Все коллекции, реализованные в `std`, используют глобальный динамический распределитель памяти (также известный как куча).
 
 [`Vec`]: https://doc.rust-lang.org/std/vec/struct.Vec.html
 [`String`]: https://doc.rust-lang.org/std/string/struct.String.html
 [`HashMap`]: https://doc.rust-lang.org/std/collections/struct.HashMap.html
 
-As `core` is, by definition, free of memory allocations these implementations
-are not available there, but they can be found in the `alloc` crate
-that's shipped with the compiler.
+Поскольку `core` по определению свободен от выделения памяти, эти реализации недоступны там, но их можно найти в крейте `alloc`, поставляемом с компилятором.
 
-If you need collections, a heap allocated implementation is not your only
-option. You can also use *fixed capacity* collections; one such implementation
-can be found in the [`heapless`] crate.
+Если вам нужны коллекции, реализация с выделением на куче — не единственный вариант. Вы также можете использовать коллекции с *фиксированной емкостью*; одна такая реализация находится в крейте [`heapless`].
 
 [`heapless`]: https://crates.io/crates/heapless
 
-In this section, we'll explore and compare these two implementations.
+В этом разделе мы рассмотрим и сравним эти две реализации.
 
-## Using `alloc`
+## Использование `alloc`
 
-The `alloc` crate is shipped with the standard Rust distribution. To import the
-crate you can directly `use` it *without* declaring it as a dependency in your
-`Cargo.toml` file.
+Крейт `alloc` поставляется со стандартной дистрибуцией Rust. Чтобы импортировать крейт, вы можете напрямую `use` его *без* объявления как зависимости в вашем файле `Cargo.toml`.
 
 ``` rust,ignore
 #![feature(alloc)]
@@ -35,19 +26,14 @@ extern crate alloc;
 use alloc::vec::Vec;
 ```
 
-To be able to use any collection you'll first need use the `global_allocator`
-attribute to declare the global allocator your program will use. It's required
-that the allocator you select implements the [`GlobalAlloc`] trait.
+Чтобы использовать любую коллекцию, вам сначала нужно использовать атрибут `global_allocator` для объявления глобального распределителя, который будет использовать ваша программа. Требуется, чтобы выбранный распределитель реализовывал трейт [`GlobalAlloc`].
 
 [`GlobalAlloc`]: https://doc.rust-lang.org/core/alloc/trait.GlobalAlloc.html
 
-For completeness and to keep this section as self-contained as possible we'll
-implement a simple bump pointer allocator and use that as the global allocator.
-However, we *strongly* suggest you use a battle tested allocator from crates.io
-in your program instead of this allocator.
+Для полноты и чтобы сделать этот раздел как можно более самодостаточным, мы реализуем простой распределитель указателя смещения и используем его как глобальный распределитель. Однако мы *настоятельно* рекомендуем использовать проверенный в боях распределитель из crates.io в вашей программе вместо этого распределителя.
 
 ``` rust,ignore
-// Bump pointer allocator implementation
+// Реализация распределителя указателя смещения
 
 use core::alloc::{GlobalAlloc, Layout};
 use core::cell::UnsafeCell;
@@ -55,7 +41,7 @@ use core::ptr;
 
 use cortex_m::interrupt;
 
-// Bump pointer allocator for *single* core systems
+// Распределитель указателя смещения для *одноядерных* систем
 struct BumpPointerAlloc {
     head: UnsafeCell<usize>,
     end: usize,
@@ -65,19 +51,19 @@ unsafe impl Sync for BumpPointerAlloc {}
 
 unsafe impl GlobalAlloc for BumpPointerAlloc {
     unsafe fn alloc(&self, layout: Layout) -> *mut u8 {
-        // `interrupt::free` is a critical section that makes our allocator safe
-        // to use from within interrupts
+        // `interrupt::free` — это критическая секция, которая делает наш распределитель безопасным
+        // для использования внутри прерываний
         interrupt::free(|_| {
             let head = self.head.get();
             let size = layout.size();
             let align = layout.align();
             let align_mask = !(align - 1);
 
-            // move start up to the next alignment boundary
+            // перемещаем начало к следующей границе выравнивания
             let start = (*head + align - 1) & align_mask;
 
             if start + size > self.end {
-                // a null pointer signal an Out Of Memory condition
+                // нулевой указатель сигнализирует об условии Out Of Memory
                 ptr::null_mut()
             } else {
                 *head = start + size;
@@ -87,13 +73,13 @@ unsafe impl GlobalAlloc for BumpPointerAlloc {
     }
 
     unsafe fn dealloc(&self, _: *mut u8, _: Layout) {
-        // this allocator never deallocates memory
+        // этот распределитель никогда не освобождает память
     }
 }
 
-// Declaration of the global memory allocator
-// NOTE the user must ensure that the memory region `[0x2000_0100, 0x2000_0200]`
-// is not used by other parts of the program
+// Объявление глобального распределителя памяти
+// ПРИМЕЧАНИЕ: пользователь должен убедиться, что область памяти `[0x2000_0100, 0x2000_0200]`
+// не используется другими частями программы
 #[global_allocator]
 static HEAP: BumpPointerAlloc = BumpPointerAlloc {
     head: UnsafeCell::new(0x2000_0100),
@@ -101,9 +87,7 @@ static HEAP: BumpPointerAlloc = BumpPointerAlloc {
 };
 ```
 
-Apart from selecting a global allocator the user will also have to define how
-Out Of Memory (OOM) errors are handled using the *unstable*
-`alloc_error_handler` attribute.
+Помимо выбора глобального распределителя, пользователь также должен определить, как обрабатываются ошибки Out Of Memory (OOM), используя *нестабильный* атрибут `alloc_error_handler`.
 
 ``` rust,ignore
 #![feature(alloc_error_handler)]
@@ -118,7 +102,7 @@ fn on_oom(_layout: Layout) -> ! {
 }
 ```
 
-Once all that is in place, the user can finally use the collections in `alloc`.
+После того, как все это на месте, пользователь наконец-то может использовать коллекции в `alloc`.
 
 ```rust,ignore
 #[entry]
@@ -134,16 +118,14 @@ fn main() -> ! {
 }
 ```
 
-If you have used the collections in the `std` crate then these will be familiar
-as they are exact same implementation.
+Если вы использовали коллекции в крейте `std`, то эти будут знакомы, поскольку это точно такая же реализация.
 
-## Using `heapless`
+## Использование `heapless`
 
-`heapless` requires no setup as its collections don't depend on a global memory
-allocator. Just `use` its collections and proceed to instantiate them:
+`heapless` не требует настройки, поскольку его коллекции не зависят от глобального распределителя памяти. Просто `use` его коллекции и приступайте к ихインスタции:
 
 ```rust,ignore
-// heapless version: v0.4.x
+// версия heapless: v0.4.x
 use heapless::Vec;
 use heapless::consts::*;
 
@@ -157,105 +139,51 @@ fn main() -> ! {
 }
 ```
 
-You'll note two differences between these collections and the ones in `alloc`.
+Вы заметите две разницы между этими коллекциями и теми, что в `alloc`.
 
-First, you have to declare upfront the capacity of the collection. `heapless`
-collections never reallocate and have fixed capacities; this capacity is part of
-the type signature of the collection. In this case we have declared that `xs`
-has a capacity of 8 elements that is the vector can, at most, hold 8 elements.
-This is indicated by the `U8` (see [`typenum`]) in the type signature.
+Во-первых, вы должны объявить заранее емкость коллекции. Коллекции `heapless` никогда не перераспределяются и имеют фиксированные емкости; эта емкость является частью сигнатуры типа коллекции. В этом случае мы объявили, что `xs` имеет емкость 8 элементов, то есть вектор может содержать максимум 8 элементов. Это указано `U8` (см. [`typenum`]) в сигнатуре типа.
 
 [`typenum`]: https://crates.io/crates/typenum
 
-Second, the `push` method, and many other methods, return a `Result`. Since the
-`heapless` collections have fixed capacity all operations that insert elements
-into the collection can potentially fail. The API reflects this problem by
-returning a `Result` indicating whether the operation succeeded or not. In
-contrast, `alloc` collections will reallocate themselves on the heap to increase
-their capacity.
+Во-вторых, метод `push` и многие другие методы возвращают `Result`. Поскольку коллекции `heapless` имеют фиксированную емкость, все операции, вставляющие элементы в коллекцию, потенциально могут завершиться неудачей. API отражает эту проблему, возвращая `Result`, указывающий, удалась ли операция. В отличие от этого, коллекции `alloc` перераспределят себя на куче, чтобы увеличить емкость.
 
-As of version v0.4.x all `heapless` collections store all their elements inline.
-This means that an operation like `let x = heapless::Vec::new();` will allocate
-the collection on the stack, but it's also possible to allocate the collection
-on a `static` variable, or even on the heap (`Box<Vec<_, _>>`).
+Начиная с версии v0.4.x, все коллекции `heapless` хранят все свои элементы inline. Это означает, что операция вроде `let x = heapless::Vec::new();` выделит коллекцию на стеке, но также возможно выделить коллекцию в `static` переменной или даже на куче (`Box<Vec<_, _>>`).
 
-## Trade-offs
+## Компромиссы
 
-Keep these in mind when choosing between heap allocated, relocatable collections
-and fixed capacity collections.
+Учитывайте эти аспекты при выборе между коллекциями с выделением на куче, перемещаемыми, и коллекциями с фиксированной емкостью.
 
-### Out Of Memory and error handling
+### Out Of Memory и обработка ошибок
 
-With heap allocations Out Of Memory is always a possibility and can occur in
-any place where a collection may need to grow: for example, all
-`alloc::Vec.push` invocations can potentially generate an OOM condition. Thus
-some operations can *implicitly* fail. Some `alloc` collections expose
-`try_reserve` methods that let you check for potential OOM conditions when
-growing the collection but you need be proactive about using them.
+С выделением на куче Out Of Memory всегда возможен и может возникнуть в любом месте, где коллекция может нуждаться в росте: например, все вызовы `alloc::Vec.push` потенциально могут генерировать условие OOM. Таким образом, некоторые операции могут *неявно* завершаться неудачей. Некоторые коллекции `alloc` предоставляют методы `try_reserve`, которые позволяют проверить потенциальные условия OOM при росте коллекции, но вы должны быть proactive в их использовании.
 
-If you exclusively use `heapless` collections and you don't use a memory
-allocator for anything else then an OOM condition is impossible. Instead, you'll
-have to deal with collections running out of capacity on a case by case basis.
-That is you'll have deal with *all* the `Result`s returned by methods like
-`Vec.push`.
+Если вы исключительно используете коллекции `heapless` и не используете распределитель памяти ни для чего другого, то условие OOM невозможно. Вместо этого вам придется справляться с исчерпанием емкости коллекций на основе случая за случаем. То есть вам придется справляться со *всеми* `Result`, возвращаемыми методами вроде `Vec.push`.
 
-OOM failures can be harder to debug than say `unwrap`-ing on all `Result`s
-returned by `heapless::Vec.push` because the observed location of failure may
-*not* match with the location of the cause of the problem. For example, even
-`vec.reserve(1)` can trigger an OOM if the allocator is nearly exhausted because
-some other collection was leaking memory (memory leaks are possible in safe
-Rust).
+Сбои OOM могут быть сложнее отлаживать, чем, скажем, `unwrap` на всех `Result`, возвращаемых `heapless::Vec.push`, потому что наблюдаемое место сбоя может *не* совпадать с местом причины проблемы. Например, даже `vec.reserve(1)` может вызвать OOM, если распределитель почти исчерпан, потому что какая-то другая коллекция протекала память (утечки памяти возможны в безопасном Rust).
 
-### Memory usage
+### Использование памяти
 
-Reasoning about memory usage of heap allocated collections is hard because the
-capacity of long lived collections can change at runtime. Some operations may
-implicitly reallocate the collection increasing its memory usage, and some
-collections expose methods like `shrink_to_fit` that can potentially reduce the
-memory used by the collection -- ultimately, it's up to the allocator to decide
-whether to actually shrink the memory allocation or not. Additionally, the
-allocator may have to deal with memory fragmentation which can increase the
-*apparent* memory usage.
+Рассуждения об использовании памяти коллекций с выделением на куче сложны, потому что емкость долгоживущих коллекций может изменяться во время выполнения. Некоторые операции могут неявно перераспределять коллекцию, увеличивая использование памяти, и некоторые коллекции предоставляют методы вроде `shrink_to_fit`, которые потенциально могут уменьшить память, используемую коллекцией — в конечном итоге, распределитель решает, действительно ли сжимать выделение памяти или нет. Кроме того, распределитель может сталкиваться с фрагментацией памяти, что может увеличивать *видимое* использование памяти.
 
-On the other hand if you exclusively use fixed capacity collections, store
-most of them in `static` variables and set a maximum size for the call stack
-then the linker will detect if you try to use more memory than what's physically
-available.
+С другой стороны, если вы исключительно используете коллекции с фиксированной емкостью, храните большинство из них в `static` переменных и устанавливаете максимальный размер стека вызовов, то линкер обнаружит, если вы пытаетесь использовать больше памяти, чем физически доступно.
 
-Furthermore, fixed capacity collections allocated on the stack will be reported
-by [`-Z emit-stack-sizes`] flag which means that tools that analyze stack usage
-(like [`stack-sizes`]) will include them in their analysis.
+Кроме того, коллекции с фиксированной емкостью, выделенные на стеке, будут сообщены флагом [`-Z emit-stack-sizes`], что означает, что инструменты, анализирующие использование стека (вроде [`stack-sizes`]), включат их в свой анализ.
 
 [`-Z emit-stack-sizes`]: https://doc.rust-lang.org/beta/unstable-book/compiler-flags/emit-stack-sizes.html
 [`stack-sizes`]: https://crates.io/crates/stack-sizes
 
-However, fixed capacity collections can *not* be shrunk which can result in
-lower load factors (the ratio between the size of the collection and its
-capacity) than what relocatable collections can achieve.
+Однако коллекции с фиксированной емкостью *не* могут быть уменьшены, что может привести к более низким коэффициентам загрузки (соотношение между размером коллекции и ее емкостью), чем то, чего могут достичь перемещаемые коллекции.
 
-### Worst Case Execution Time (WCET)
+### Худшее время выполнения (WCET)
 
-If you are building time sensitive applications or hard real time applications
-then you care, maybe a lot, about the worst case execution time of the different
-parts of your program.
+Если вы строите приложения, чувствительные ко времени, или приложения реального времени с жесткими требованиями, то вы заботитесь, возможно, сильно, о худшем времени выполнения различных частей вашей программы.
 
-The `alloc` collections can reallocate so the WCET of operations that may grow
-the collection will also include the time it takes to reallocate the collection,
-which itself depends on the *runtime* capacity of the collection. This makes it
-hard to determine the WCET of, for example, the `alloc::Vec.push` operation as
-it depends on both the allocator being used and its runtime capacity.
+Коллекции `alloc` могут перераспределяться, так что WCET операций, которые могут расти коллекцию, также будет включать время, затрачиваемое на перераспределение коллекции, которое само зависит от *времени выполнения* емкости коллекции. Это делает сложным определение WCET, например, операции `alloc::Vec.push`, поскольку оно зависит как от используемого распределителя, так и от его емкости во время выполнения.
 
-On the other hand fixed capacity collections never reallocate so all operations
-have a predictable execution time. For example, `heapless::Vec.push` executes in
-constant time.
+С другой стороны, коллекции с фиксированной емкостью никогда не перераспределяются, так что все операции имеют предсказуемое время выполнения. Например, `heapless::Vec.push` выполняется за постоянное время.
 
-### Ease of use
+### Простота использования
 
-`alloc` requires setting up a global allocator whereas `heapless` does not.
-However, `heapless` requires you to pick the capacity of each collection that
-you instantiate.
+`alloc` требует настройки глобального распределителя, в то время как `heapless` нет. Однако `heapless` требует, чтобы вы выбирали емкость каждойインスタциируемой коллекции.
 
-The `alloc` API will be familiar to virtually every Rust developer. The
-`heapless` API tries to closely mimic the `alloc` API but it will never be
-exactly the same due to its explicit error handling -- some developers may feel
-the explicit error handling is excessive or too cumbersome.
+API `alloc` будет знаком практически каждому разработчику на Rust. API `heapless` пытается тесно имитировать API `alloc`, но никогда не будет точно таким же из-за явной обработки ошибок — некоторые разработчики могут считать явную обработку ошибок чрезмерной или слишком громоздкой.

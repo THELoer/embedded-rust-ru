@@ -1,15 +1,14 @@
-# Singletons
+# Синглтоны
 
-> In software engineering, the singleton pattern is a software design pattern that restricts the instantiation of a class to one object.
+> В программной инженерии шаблон синглтон — это шаблон проектирования, который ограничивает создание экземпляров класса одним объектом.
 >
-> *Wikipedia: [Singleton Pattern]*
+> *Википедия: [Шаблон синглтон]*
 
-[Singleton Pattern]: https://en.wikipedia.org/wiki/Singleton_pattern
+[Шаблон синглтон]: https://en.wikipedia.org/wiki/Singleton_pattern
 
+## Почему нельзя просто использовать глобальные переменные?
 
-## But why can't we just use global variable(s)?
-
-We could make everything a public static, like this
+Мы могли бы сделать все публичными статическими переменными, например так:
 
 ```rust,ignore
 static mut THE_SERIAL_PORT: SerialPort = SerialPort;
@@ -21,11 +20,11 @@ fn main() {
 }
 ```
 
-But this has a few problems. It is a mutable global variable, and in Rust, these are always unsafe to interact with. These variables are also visible across your whole program, which means the borrow checker is unable to help you track references and ownership of these variables.
+Но у этого подхода есть несколько проблем. Это изменяемая глобальная переменная, и в Rust взаимодействие с такими переменными всегда небезопасно. Кроме того, эти переменные видны во всей программе, что означает, что проверяющий заимствования не может помочь вам отслеживать ссылки и владение этими переменными.
 
-## How do we do this in Rust?
+## Как это сделать в Rust?
 
-Instead of just making our peripheral a global variable, we might instead decide to make a structure, in this case called `PERIPHERALS`, which contains an `Option<T>` for each of our peripherals.
+Вместо того чтобы делать наше периферийное устройство глобальной переменной, мы можем создать структуру, в данном случае названную `PERIPHERALS`, которая содержит `Option<T>` для каждого из наших периферийных устройств.
 
 ```rust,ignore
 struct Peripherals {
@@ -42,65 +41,41 @@ static mut PERIPHERALS: Peripherals = Peripherals {
 };
 ```
 
-This structure allows us to obtain a single instance of our peripheral. If we try to call `take_serial()` more than once, our code will panic!
+Эта структура позволяет нам получить единственный экземпляр нашего периферийного устройства. Если мы попытаемся вызвать `take_serial()` более одного раза, наш код вызовет панику!
 
 ```rust,ignore
 fn main() {
     let serial_1 = unsafe { PERIPHERALS.take_serial() };
-    // This panics!
+    // Это вызовет панику!
     // let serial_2 = unsafe { PERIPHERALS.take_serial() };
 }
 ```
 
-Although interacting with this structure is `unsafe`, once we have the `SerialPort` it contained, we no longer need to use `unsafe`, or the `PERIPHERALS` structure at all.
+Хотя взаимодействие с этой структурой является `unsafe`, после того как мы получили содержащийся в ней `SerialPort`, нам больше не нужно использовать `unsafe` или саму структуру `PERIPHERALS`.
 
-This has a small runtime overhead because we must wrap the `SerialPort` structure in an option, and we'll need to call `take_serial()` once, however this small up-front cost allows us to leverage the borrow checker throughout the rest of our program.
-
-## Existing library support
-
-Although we created our own `Peripherals` structure above, it is not necessary to do this for your code. the `cortex_m` crate contains a macro called `singleton!()` that will perform this action for you.
+Это имеет небольшую накладную стоимость во время выполнения, поскольку нам нужно обернуть структуру `SerialPort` в `Option`, и нам придется один раз вызвать `take_serial()`, однако эта небольшая начальная стоимость позволяет нам использовать проверяющий заимствования...
 
 ```rust,ignore
-use cortex_m::singleton;
-
-fn main() {
-    // OK if `main` is executed only once
-    let x: &'static mut bool =
-        singleton!(: bool = false).unwrap();
-}
-```
-
-[cortex_m docs](https://docs.rs/cortex-m/latest/cortex_m/macro.singleton.html)
-
-Additionally, if you use [`cortex-m-rtic`](https://github.com/rtic-rs/cortex-m-rtic), the entire process of defining and obtaining these peripherals are abstracted for you, and you are instead handed a `Peripherals` structure that contains a non-`Option<T>` version of all of the items you define.
-
-```rust,ignore
-// cortex-m-rtic v0.5.x
-#[rtic::app(device = lm3s6965, peripherals = true)]
-const APP: () = {
-    #[init]
-    fn init(cx: init::Context) {
-        static mut X: u32 = 0;
-         
-        // Cortex-M peripherals
-        let core: cortex_m::Peripherals = cx.core;
+#[entry]
+fn main(cx: main::Context) -> ! {
+    // Получение доступа к периферийным устройствам ядра
+    let core: CorePeripherals = cx.core;
         
-        // Device specific peripherals
-        let device: lm3s6965::Peripherals = cx.device;
-    }
+    // Устройство-специфичные периферийные устройства
+    let device: lm3s6965::Peripherals = cx.device;
 }
 ```
 
-## But why?
+## Но зачем?
 
-But how do these Singletons make a noticeable difference in how our Rust code works?
+Но как эти синглтоны существенно влияют на работу нашего кода на Rust?
 
 ```rust,ignore
 impl SerialPort {
     const SER_PORT_SPEED_REG: *mut u32 = 0x4000_1000 as _;
 
     fn read_speed(
-        &self // <------ This is really, really important
+        &self // <------ Это действительно очень важно
     ) -> u32 {
         unsafe {
             ptr::read_volatile(Self::SER_PORT_SPEED_REG)
@@ -109,30 +84,30 @@ impl SerialPort {
 }
 ```
 
-There are two important factors in play here:
+Здесь действуют два важных фактора:
 
-* Because we are using a singleton, there is only one way or place to obtain a `SerialPort` structure
-* To call the `read_speed()` method, we must have ownership or a reference to a `SerialPort` structure
+* Поскольку мы используем синглтон, есть только один способ или место для получения структуры `SerialPort`.
+* Чтобы вызвать метод `read_speed()`, мы должны иметь владение или ссылку на структуру `SerialPort`.
 
-These two factors put together means that it is only possible to access the hardware if we have appropriately satisfied the borrow checker, meaning that at no point do we have multiple mutable references to the same hardware!
+Эти два фактора вместе означают, что доступ к аппаратному обеспечению возможен только в том случае, если мы соответствующим образом удовлетворили проверяющий заимствования, что означает, что у нас никогда не будет нескольких изменяемых ссылок на одно и то же аппаратное обеспечение!
 
 ```rust,ignore
 fn main() {
-    // missing reference to `self`! Won't work.
+    // Отсутствует ссылка на `self`! Не сработает.
     // SerialPort::read_speed();
 
     let serial_1 = unsafe { PERIPHERALS.take_serial() };
 
-    // you can only read what you have access to
+    // Вы можете читать только то, к чему у вас есть доступ
     let _ = serial_1.read_speed();
 }
 ```
 
-## Treat your hardware like data
+## Относитесь к вашему оборудованию как к данным
 
-Additionally, because some references are mutable, and some are immutable, it becomes possible to see whether a function or method could potentially modify the state of the hardware. For example,
+Кроме того, поскольку некоторые ссылки изменяемые, а некоторые — неизменяемые, становится возможным определить, может ли функция или метод потенциально изменить состояние аппаратного обеспечения. Например,
 
-This is allowed to change hardware settings:
+Это может изменять настройки оборудования:
 
 ```rust,ignore
 fn setup_spi_port(
@@ -143,7 +118,7 @@ fn setup_spi_port(
 }
 ```
 
-This isn't:
+А это — нет:
 
 ```rust,ignore
 fn read_button(gpio: &GpioPin) -> bool {
@@ -151,4 +126,4 @@ fn read_button(gpio: &GpioPin) -> bool {
 }
 ```
 
-This allows us to enforce whether code should or should not make changes to hardware at **compile time**, rather than at runtime. As a note, this generally only works across one application, but for bare metal systems, our software will be compiled into a single application, so this is not usually a restriction.
+Это позволяет нам обеспечивать, будет ли код изменять аппаратное обеспечение или нет, на этапе **компиляции**, а не во время выполнения. Заметьте, что это обычно работает только в пределах одного приложения, но для систем без операционной системы наше программное обеспечение компилируется в одно приложение, так что это обычно не является ограничением.

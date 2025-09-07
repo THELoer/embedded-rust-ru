@@ -1,22 +1,15 @@
-# Interoperability
-
+# Интероперабельность
 
 <a id="c-free"></a>
-## Wrapper types provide a destructor method (C-FREE)
+## Типы-обертки предоставляют метод деструктора (C-FREE)
 
-Any non-`Copy` wrapper type provided by the HAL should provide a `free` method
-that consumes the wrapper and returns back the raw peripheral (and possibly
-other objects) it was created from.
+Любой тип-обертка, не являющийся `Copy`, предоставляемый HAL, должен иметь метод `free`, который потребляет обертку и возвращает исходное периферийное устройство (и, возможно, другие объекты), из которого она была создана.
 
-The method should shut down and reset the peripheral if necessary. Calling `new`
-with the raw peripheral returned by `free` should not fail due to an unexpected
-state of the peripheral.
+Метод должен при необходимости выключать и сбрасывать периферийное устройство. Вызов `new` с исходным периферийным устройством, возвращенным из `free`, не должен завершаться с ошибкой из-за неожиданного состояния периферийного устройства.
 
-If the HAL type requires other non-`Copy` objects to be constructed (for example
-I/O pins), any such object should be released and returned by `free` as well.
-`free` should return a tuple in that case.
+Если тип HAL требует создания других объектов, не являющихся `Copy` (например, пинов ввода-вывода), такие объекты также должны быть освобождены и возвращены методом `free`. В этом случае `free` должен возвращать кортеж.
 
-For example:
+Пример:
 
 ```rust
 # pub struct TIMER0;
@@ -34,24 +27,19 @@ impl Timer {
 ```
 
 <a id="c-reexport-pac"></a>
-## HALs reexport their register access crate (C-REEXPORT-PAC)
+## HAL переэкспортирует свой крейт доступа к регистрам (C-REEXPORT-PAC)
 
-HALs can be written on top of [svd2rust]-generated PACs, or on top of other
-crates that provide raw register access. HALs should always reexport the
-register access crate they are based on in their crate root.
+HAL могут быть написаны на основе PAC, сгенерированных [svd2rust], или на основе других крейтов, предоставляющих прямой доступ к регистрам. HAL всегда должны переэкспортировать крейт доступа к регистрам, на котором они основаны, в корне своего крейта.
 
-A PAC should be reexported under the name `pac`, regardless of the actual name
-of the crate, as the name of the HAL should already make it clear what PAC is
-being accessed.
+PAC должен быть переэкспортирован под именем `pac`, независимо от фактического имени крейта, поскольку имя HAL уже должно ясно указывать, какой PAC используется.
 
 [svd2rust]: https://github.com/rust-embedded/svd2rust
 
 <a id="c-hal-traits"></a>
-## Types implement the `embedded-hal` traits (C-HAL-TRAITS)
+## Типы реализуют трейты `embedded-hal` (C-HAL-TRAITS)
 
-Types provided by the HAL should implement all applicable traits provided by the
-[`embedded-hal`] crate.
+Типы, предоставляемые HAL, должны реализовывать все применимые трейты, предоставляемые крейтом [`embedded-hal`].
 
-Multiple traits may be implemented for the same type.
+Один и тот же тип может реализовывать несколько трейтов.
 
 [`embedded-hal`]: https://github.com/rust-embedded/embedded-hal

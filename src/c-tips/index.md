@@ -1,37 +1,24 @@
-# Tips for embedded C developers
+# Советы для разработчиков на embedded C
 
-This chapter collects a variety of tips that might be useful to experienced
-embedded C developers looking to start writing Rust. It will especially
-highlight how things you might already be used to in C are different in Rust.
+Эта глава собирает различные советы, которые могут быть полезны опытным разработчикам на embedded C, желающим начать писать на Rust. Особое внимание будет уделено тому, как вещи, к которым вы уже привыкли в C, отличаются в Rust.
 
-## Preprocessor
+## Препроцессор
 
-In embedded C it is very common to use the preprocessor for a variety of
-purposes, such as:
+В embedded C очень распространено использование препроцессора для различных целей, таких как:
 
-* Compile-time selection of code blocks with `#ifdef`
-* Compile-time array sizes and computations
-* Macros to simplify common patterns (to avoid function call overhead)
+* Выбор блоков кода во время компиляции с помощью `#ifdef`
+* Размеры массивов и вычисления во время компиляции
+* Макросы для упрощения общих шаблонов (чтобы избежать накладных расходов на вызов функций)
 
-In Rust there is no preprocessor, and so many of these use cases are addressed
-differently. In the rest of this section we cover various alternatives to
-using the preprocessor.
+В Rust нет препроцессора, поэтому многие из этих случаев использования решаются по-другому. В остальной части этого раздела мы рассмотрим различные альтернативы использованию препроцессора.
 
-### Compile-Time Code Selection
+### Выбор кода во время компиляции
 
-The closest match to `#ifdef ... #endif` in Rust are [Cargo features]. These
-are a little more formal than the C preprocessor: all possible features are
-explicitly listed per crate, and can only be either on or off. Features are
-turned on when you list a crate as a dependency, and are additive: if any crate
-in your dependency tree enables a feature for another crate, that feature will
-be enabled for all users of that crate.
+Наиболее близким аналогом `#ifdef ... #endif` в Rust являются [функции Cargo][Cargo features]. Они немного более формальны, чем препроцессор C: все возможные функции явно перечислены для каждого крейта и могут быть либо включены, либо выключены. Функции включаются при перечислении крейта как зависимости и являются аддитивными: если любой крейт в вашем дереве зависимостей включает функцию для другого крейта, эта функция будет включена для всех пользователей этого крейта.
 
 [Cargo features]: https://doc.rust-lang.org/cargo/reference/manifest.html#the-features-section
 
-For example, you might have a crate which provides a library of signal
-processing primitives. Each one might take some extra time to compile or
-declare some large table of constants which you'd like to avoid. You could
-declare a Cargo feature for each component in your `Cargo.toml`:
+Например, у вас может быть крейт, предоставляющий библиотеку примитивов обработки сигналов. Каждый из них может требовать дополнительного времени на компиляцию или объявлять большую таблицу констант, которую вы хотите избежать. Вы можете объявить функцию Cargo для каждого компонента в вашем `Cargo.toml`:
 
 ```toml
 [features]
@@ -39,10 +26,10 @@ FIR = []
 IIR = []
 ```
 
-Then, in your code, use `#[cfg(feature="FIR")]` to control what is included.
+Затем в вашем коде используйте `#[cfg(feature="FIR")]` для управления тем, что включается.
 
 ```rust
-/// In your top-level lib.rs
+/// В вашем lib.rs верхнего уровня
 
 #[cfg(feature="FIR")]
 pub mod fir;
@@ -51,29 +38,17 @@ pub mod fir;
 pub mod iir;
 ```
 
-You can similarly include code blocks only if a feature is _not_ enabled, or if
-any combination of features are or are not enabled.
+Аналогично вы можете включать блоки кода только если функция _не_ включена или если любая комбинация функций включена или не включена.
 
-Additionally, Rust provides a number of automatically-set conditions you can
-use, such as `target_arch` to select different code based on architecture. For
-full details of the conditional compilation support, refer to the
-[conditional compilation] chapter of the Rust reference.
+Кроме того, Rust предоставляет ряд автоматически устанавливаемых условий, которые вы можете использовать, таких как `target_arch` для выбора разного кода в зависимости от архитектуры. Для полного описания поддержки условной компиляции обратитесь к главе [условная компиляция][conditional compilation] справочника Rust.
 
 [conditional compilation]: https://doc.rust-lang.org/reference/conditional-compilation.html
 
-The conditional compilation will only apply to the next statement or block. If
-a block can not be used in the current scope then the `cfg` attribute will
-need to be used multiple times.  It's worth noting that most of the time it is
-better to simply include all the code and allow the compiler to remove dead
-code when optimising: it's simpler for you and your users, and in general the
-compiler will do a good job of removing unused code.
+Условная компиляция применяется только к следующему утверждению или блоку. Если блок не может быть использован в текущей области видимости, то атрибут `cfg` нужно использовать несколько раз. Стоит отметить, что в большинстве случаев лучше просто включить весь код и позволить компилятору удалить неиспользуемый код при оптимизации: это проще для вас и ваших пользователей, и в общем случае компилятор хорошо справляется с удалением неиспользуемого кода.
 
-### Compile-Time Sizes and Computation
+### Размеры и вычисления во время компиляции
 
-Rust supports `const fn`, functions which are guaranteed to be evaluable at
-compile-time and can therefore be used where constants are required, such as
-in the size of arrays. This can be used alongside features mentioned above,
-for example:
+Rust поддерживает `const fn`, функции, которые гарантированно вычисляемы во время компиляции и поэтому могут использоваться там, где требуются константы, например, в размере массивов. Это можно использовать вместе с функциями, упомянутыми выше, например:
 
 ```rust
 const fn array_size() -> usize {
@@ -86,228 +61,152 @@ const fn array_size() -> usize {
 static BUF: [u32; array_size()] = [0u32; array_size()];
 ```
 
-These are new to stable Rust as of 1.31, so documentation is still sparse. The
-functionality available to `const fn` is also very limited at the time of
-writing; in future Rust releases it is expected to expand on what is permitted
-in a `const fn`.
+Это новинка в стабильном Rust с версии 1.31, поэтому документация все еще скудна. Функциональность, доступная для `const fn`, также очень ограничена на момент написания; в будущих релизах Rust ожидается расширение того, что разрешено в `const fn`.
 
-### Macros
+### Макросы
 
-Rust provides an extremely powerful [macro system]. While the C preprocessor
-operates almost directly on the text of your source code, the Rust macro system
-operates at a higher level. There are two varieties of Rust macro: _macros by
-example_ and _procedural macros_. The former are simpler and most common; they
-look like function calls and can expand to a complete expression, statement,
-item, or pattern. Procedural macros are more complex but permit extremely
-powerful additions to the Rust language: they can transform arbitrary Rust
-syntax into new Rust syntax.
+Rust предоставляет чрезвычайно мощную [систему макросов][macro system]. В то время как препроцессор C работает почти напрямую с текстом вашего исходного кода, система макросов Rust работает на более высоком уровне. Существуют два вида макросов Rust: _макросы по примеру_ и _процедурные макросы_. Первые проще и наиболее распространены; они выглядят как вызовы функций и могут расширяться в полное выражение, утверждение, элемент или шаблон. Процедурные макросы более сложны, но позволяют чрезвычайно мощные дополнения к языку Rust: они могут преобразовывать произвольный синтаксис Rust в новый синтаксис Rust.
 
 [macro system]: https://doc.rust-lang.org/book/ch19-06-macros.html
 
-In general, where you might have used a C preprocessor macro, you probably want
-to see if a macro-by-example can do the job instead. They can be defined in
-your crate and easily used by your own crate or exported for other users. Be
-aware that since they must expand to complete expressions, statements, items,
-or patterns, some use cases of C preprocessor macros will not work, for example
-a macro that expands to part of a variable name or an incomplete set of items
-in a list.
+В общем, там, где вы могли бы использовать макрос препроцессора C, вы, вероятно, хотите посмотреть, может ли макрос по примеру справиться с задачей. Они могут быть определены в вашем крейте и легко использоваться вашим крейтом или экспортироваться для других пользователей. Имейте в виду, что поскольку они должны расширяться в полные выражения, утверждения, элементы или шаблоны, некоторые случаи использования макросов препроцессора C не будут работать, например, макрос, который расширяется в часть имени переменной или неполный набор элементов в списке.
 
-As with Cargo features, it is worth considering if you even need the macro. In
-many cases a regular function is easier to understand and will be inlined to
-the same code as a macro. The `#[inline]` and `#[inline(always)]` [attributes]
-give you further control over this process, although care should be taken here
-as well — the compiler will automatically inline functions from the same crate
-where appropriate, so forcing it to do so inappropriately might actually lead
-to decreased performance.
+Как и с функциями Cargo, стоит подумать, нужен ли вам макрос вообще. Во многих случаях обычная функция проще для понимания и будет встроена в тот же код, что и макрос. Атрибуты `#[inline]` и `#[inline(always)]` [attributes] дают вам дополнительный контроль над этим процессом, хотя здесь тоже следует проявлять осторожность — компилятор автоматически встраивает функции из того же крейта, где это уместно, так что принуждение к этому неуместно может привести к снижению производительности.
 
 [attributes]: https://doc.rust-lang.org/reference/attributes.html#inline-attribute
 
-Explaining the entire Rust macro system is out of scope for this tips page, so
-you are encouraged to consult the Rust documentation for full details.
+Объяснение всей системы макросов Rust выходит за рамки этой страницы советов, поэтому рекомендуется обратиться к документации Rust за полными деталями.
 
-## Build System
+## Система сборки
 
-Most Rust crates are built using Cargo (although it is not required). This
-takes care of many difficult problems with traditional build systems. However,
-you may wish to customise the build process. Cargo provides [`build.rs`
-scripts] for this purpose. They are Rust scripts which can interact with the
-Cargo build system as required.
+Большинство крейтов Rust собираются с использованием Cargo (хотя это не обязательно). Это решает многие сложные проблемы традиционных систем сборки. Однако вы можете захотеть настроить процесс сборки. Cargo предоставляет [скрипты `build.rs`][`build.rs` scripts] для этой цели. Это скрипты на Rust, которые могут взаимодействовать с системой сборки Cargo по мере необходимости.
 
 [`build.rs` scripts]: https://doc.rust-lang.org/cargo/reference/build-scripts.html
 
-Common use cases for build scripts include:
+Общие случаи использования скриптов сборки включают:
 
-* provide build-time information, for example statically embedding the build
-  date or Git commit hash into your executable
-* generate linker scripts at build time depending on selected features or other
-  logic
-* change the Cargo build configuration
-* add extra static libraries to link against
+* предоставление информации во время сборки, например, статическое встраивание даты сборки или хэша коммита Git в исполняемый файл
+* генерация скриптов линковки во время сборки в зависимости от выбранных функций или другой логики
+* изменение конфигурации сборки Cargo
+* добавление дополнительных статических библиотек для линковки
 
-At present there is no support for post-build scripts, which you might
-traditionally have used for tasks like automatic generation of binaries from
-the build objects or printing build information.
+На данный момент нет поддержки скриптов после сборки, которые вы могли бы традиционно использовать для задач, таких как автоматическая генерация бинарных файлов из объектов сборки или печать информации о сборке.
 
-### Cross-Compiling
+### Кросс-компиляция
 
-Using Cargo for your build system also simplifies cross-compiling. In most
-cases it suffices to tell Cargo `--target thumbv6m-none-eabi` and find a
-suitable executable in `target/thumbv6m-none-eabi/debug/myapp`.
+Использование Cargo для системы сборки также упрощает кросс-компиляцию. В большинстве случаев достаточно указать Cargo `--target thumbv6m-none-eabi` и найти подходящий исполняемый файл в `target/thumbv6m-none-eabi/debug/myapp`.
 
-For platforms not natively supported by Rust, you will need to build `libcore`
-for that target yourself. On such platforms, [Xargo] can be used as a stand-in
-for Cargo which automatically builds `libcore` for you.
+Для платформ, не поддерживаемых Rust нативно, вам нужно будет собрать `libcore` для этой цели самостоятельно. На таких платформах можно использовать [Xargo] как замену Cargo, который автоматически собирает `libcore` для вас.
 
 [Xargo]: https://github.com/japaric/xargo
 
-## Iterators vs Array Access
+## Итераторы против доступа к массиву
 
-In C you are probably used to accessing arrays directly by their index:
+В C вы, вероятно, привыкли обращаться к массивам напрямую по индексу:
 
 ```c
 int16_t arr[16];
 int i;
-for(i=0; i<sizeof(arr)/sizeof(arr[0]); i++) {
-    process(arr[i]);
+for(i = 0; i < sizeof(arr)/sizeof(arr[0]); i++) {
+    arr[i] = i;
 }
 ```
 
-In Rust this is an anti-pattern: indexed access can be slower (as it needs to
-be bounds checked) and may prevent various compiler optimisations. This is an
-important distinction and worth repeating: Rust will check for out-of-bounds
-access on manual array indexing to guarantee memory safety, while C will
-happily index outside the array.
+В Rust предпочтительным подходом является использование итераторов, которые часто более безопасны и выразительны. Например:
 
-Instead, use iterators:
-
-```rust,ignore
-let arr = [0u16; 16];
-for element in arr.iter() {
-    process(*element);
+```rust
+let mut arr = [0i16; 16];
+for (i, v) in arr.iter_mut().enumerate() {
+    *v = i as i16;
 }
 ```
 
-Iterators provide a powerful array of functionality you would have to implement
-manually in C, such as chaining, zipping, enumerating, finding the min or max,
-summing, and more. Iterator methods can also be chained, giving very readable
-data processing code.
+Итераторы в Rust позволяют избежать ошибок, связанных с выходом за границы массива, и предоставляют мощные методы для обработки данных. Однако в контексте embedded, где производительность критична, иногда может потребоваться прямой доступ к массиву, как в C. В таких случаях вы можете использовать индексацию, но будьте осторожны с проверкой границ:
 
-See the [Iterators in the Book] and [Iterator documentation] for more details.
+```rust
+let mut arr = [0i16; 16];
+for i in 0..arr.len() {
+    arr[i] = i as i16;
+}
+```
 
-[Iterators in the Book]: https://doc.rust-lang.org/book/ch13-02-iterators.html
-[Iterator documentation]: https://doc.rust-lang.org/core/iter/trait.Iterator.html
+## Указатели
 
-## References vs Pointers
+В C указатели — это фундаментальная часть языка, используемая для прямого доступа к памяти, особенно в embedded-разработке. В Rust указатели существуют, но их использование ограничено из-за системы владения и заимствования. В Rust есть два типа сырых указателей: `*const T` и `*mut T`. Они похожи на указатели в C в том смысле, что их можно разыменовать для доступа к базовым значениям, но они являются ключевой частью системы владения Rust: Rust строго обеспечивает, что у вас может быть только одна изменяемая ссылка _или_ несколько неизменяемых ссылок на одно и то же значение в любой момент времени.
 
-In Rust, pointers (called [_raw pointers_]) exist but are only used in specific
-circumstances, as dereferencing them is always considered `unsafe` -- Rust
-cannot provide its usual guarantees about what might be behind the pointer.
+На практике это означает, что вы должны быть более осторожны с тем, нужен ли вам изменяемый доступ к данным: если в C по умолчанию все изменяемо и вы должны явно указывать `const`, в Rust наоборот.
 
-[_raw pointers_]: https://doc.rust-lang.org/book/ch19-01-unsafe-rust.html#dereferencing-a-raw-pointer
+Одна ситуация, когда вы все еще можете использовать сырые указатели, — это прямое взаимодействие с аппаратным обеспечением (например, запись указателя на буфер в регистр DMA), и они также используются под капотом во всех крейтах доступа к периферийным устройствам, чтобы позволить вам читать и записывать регистры с отображением в память.
 
-In most cases, we instead use _references_, indicated by the `&` symbol, or
-_mutable references_, indicated by `&mut`. References behave similarly to
-pointers, in that they can be dereferenced to access the underlying values, but
-they are a key part of Rust's ownership system: Rust will strictly enforce that
-you may only have one mutable reference _or_ multiple non-mutable references to
-the same value at any given time.
+## Волатильный доступ
 
-In practice this means you have to be more careful about whether you need
-mutable access to data: where in C the default is mutable and you must be
-explicit about `const`, in Rust the opposite is true.
+В C отдельные переменные могут быть помечены как `volatile`, что указывает компилятору, что значение переменной может измениться между обращениями. Волатильные переменные обычно используются в контексте embedded для регистров с отображением в память.
 
-One situation where you might still use raw pointers is interacting directly
-with hardware (for example, writing a pointer to a buffer into a DMA peripheral
-register), and they are also used under the hood for all peripheral access
-crates to allow you to read and write memory-mapped registers.
-
-## Volatile Access
-
-In C, individual variables may be marked `volatile`, indicating to the compiler
-that the value in the variable may change between accesses. Volatile variables
-are commonly used in an embedded context for memory-mapped registers.
-
-In Rust, instead of marking a variable as `volatile`, we use specific methods
-to perform volatile access: [`core::ptr::read_volatile`] and
-[`core::ptr::write_volatile`]. These methods take a `*const T` or a `*mut T`
-(_raw pointers_, as discussed above) and perform a volatile read or write.
+В Rust вместо пометки переменной как `volatile` мы используем специальные методы для выполнения волатильного доступа: [`core::ptr::read_volatile`] и [`core::ptr::write_volatile`]. Эти методы принимают `*const T` или `*mut T` (_сырые указатели_, как обсуждалось выше) и выполняют волатильное чтение или запись.
 
 [`core::ptr::read_volatile`]: https://doc.rust-lang.org/core/ptr/fn.read_volatile.html
 [`core::ptr::write_volatile`]: https://doc.rust-lang.org/core/ptr/fn.write_volatile.html
 
-For example, in C you might write:
+Например, в C вы могли бы написать:
 
 ```c
 volatile bool signalled = false;
 
 void ISR() {
-    // Signal that the interrupt has occurred
+    // Сигнализируем, что прерывание произошло
     signalled = true;
 }
 
 void driver() {
     while(true) {
-        // Sleep until signalled
+        // Спим до сигнала
         while(!signalled) { WFI(); }
-        // Reset signalled indicator
+        // Сбрасываем индикатор сигнала
         signalled = false;
-        // Perform some task that was waiting for the interrupt
+        // Выполняем задачу, ожидающую прерывания
         run_task();
     }
 }
 ```
 
-The equivalent in Rust would use volatile methods on each access:
+Эквивалент в Rust использовал бы волатильные методы для каждого доступа:
 
 ```rust,ignore
 static mut SIGNALLED: bool = false;
 
 #[interrupt]
 fn ISR() {
-    // Signal that the interrupt has occurred
-    // (In real code, you should consider a higher level primitive,
-    //  such as an atomic type).
+    // Сигнализируем, что прерывание произошло
+    // (В реальном коде следует рассмотреть примитив более высокого уровня,
+    // например, атомарный тип).
     unsafe { core::ptr::write_volatile(&mut SIGNALLED, true) };
 }
 
 fn driver() {
     loop {
-        // Sleep until signalled
+        // Спим до сигнала
         while unsafe { !core::ptr::read_volatile(&SIGNALLED) } {}
-        // Reset signalled indicator
+        // Сбрасываем индикатор сигнала
         unsafe { core::ptr::write_volatile(&mut SIGNALLED, false) };
-        // Perform some task that was waiting for the interrupt
+        // Выполняем задачу, ожидающую прерывания
         run_task();
     }
 }
 ```
 
-A few things are worth noting in the code sample:
-  * We can pass `&mut SIGNALLED` into the function requiring `*mut T`, since
-    `&mut T` automatically converts to a `*mut T` (and the same for `*const T`)
-  * We need `unsafe` blocks for the `read_volatile`/`write_volatile` methods,
-    since they are `unsafe` functions. It is the programmer's responsibility
-    to ensure safe use: see the methods' documentation for further details.
+Несколько моментов, которые стоит отметить в примере кода:
+  * Мы можем передать `&mut SIGNALLED` в функцию, требующую `*mut T`, поскольку `&mut T` автоматически преобразуется в `*mut T` (и то же самое для `*const T`)
+  * Нам нужны блоки `unsafe` для методов `read_volatile`/`write_volatile`, поскольку это небезопасные функции. Ответственность за обеспечение безопасного использования лежит на программисте: подробности см. в документации методов.
 
-It is rare to require these functions directly in your code, as they will
-usually be taken care of for you by higher-level libraries. For memory mapped
-peripherals, the peripheral access crates will implement volatile access
-automatically, while for concurrency primitives there are better abstractions
-available (see the [Concurrency chapter]).
+Прямое использование этих функций в вашем коде редко требуется, так как они обычно обрабатываются библиотеками более высокого уровня. Для регистров с отображением в память крейты доступа к периферийным устройствам автоматически реализуют волатильный доступ, в то время как для примитивов параллелизма доступны лучшие абстракции (см. главу [Параллелизм][Concurrency chapter]).
 
 [Concurrency chapter]: ../concurrency/index.md
 
-## Packed and Aligned Types
+## Упакованные и выровненные типы
 
-In embedded C it is common to tell the compiler a variable must have a certain
-alignment or a struct must be packed rather than aligned, usually to meet
-specific hardware or protocol requirements.
+В embedded C часто указывают компилятору, что переменная должна иметь определенное выравнивание или структура должна быть упакована, а не выровнена, обычно для соответствия требованиям аппаратного обеспечения или протокола.
 
-In Rust this is controlled by the `repr` attribute on a struct or union. The
-default representation provides no guarantees of layout, so should not be used
-for code that interoperates with hardware or C. The compiler may re-order
-struct members or insert padding and the behaviour may change with future
-versions of Rust.
+В Rust это контролируется атрибутом `repr` для структуры или объединения. Представление по умолчанию не предоставляет гарантий компоновки, поэтому его не следует использовать для кода, взаимодействующего с аппаратным обеспечением или C. Компилятор может переупорядочить члены структуры или вставить заполнение, и поведение может измениться в будущих версиях Rust.
 
 ```rust
 struct Foo {
@@ -322,10 +221,10 @@ fn main() {
 }
 
 // 0x7ffecb3511d0 0x7ffecb3511d4 0x7ffecb3511d2
-// Note ordering has been changed to x, z, y to improve packing.
+// Обратите внимание, что порядок изменен на x, z, y для улучшения упаковки.
 ```
 
-To ensure layouts that are interoperable with C, use `repr(C)`:
+Чтобы обеспечить компоновку, совместимую с C, используйте `repr(C)`:
 
 ```rust
 #[repr(C)]
@@ -341,11 +240,11 @@ fn main() {
 }
 
 // 0x7fffd0d84c60 0x7fffd0d84c62 0x7fffd0d84c64
-// Ordering is preserved and the layout will not change over time.
-// `z` is two-byte aligned so a byte of padding exists between `y` and `z`.
+// Порядок сохранен, и компоновка не изменится со временем.
+// `z` выровнен по двум байтам, поэтому между `y` и `z` существует байт заполнения.
 ```
 
-To ensure a packed representation, use `repr(packed)`:
+Для обеспечения упакованного представления используйте `repr(packed)`:
 
 ```rust
 #[repr(packed)]
@@ -357,9 +256,9 @@ struct Foo {
 
 fn main() {
     let v = Foo { x: 0, y: 0, z: 0 };
-    // References must always be aligned, so to check the addresses of the
-    // struct's fields, we use `std::ptr::addr_of!()` to get a raw pointer
-    // instead of just printing `&v.x`.
+    // Ссылки всегда должны быть выровнены, поэтому для проверки адресов полей структуры
+    // мы используем `std::ptr::addr_of!()` для получения сырого указателя
+    // вместо простого вывода `&v.x`.
     let px = std::ptr::addr_of!(v.x);
     let py = std::ptr::addr_of!(v.y);
     let pz = std::ptr::addr_of!(v.z);
@@ -367,13 +266,12 @@ fn main() {
 }
 
 // 0x7ffd33598490 0x7ffd33598492 0x7ffd33598493
-// No padding has been inserted between `y` and `z`, so now `z` is unaligned.
+// Между `y` и `z` не вставлено заполнение, поэтому теперь `z` не выровнен.
 ```
 
-Note that using `repr(packed)` also sets the alignment of the type to `1`.
+Обратите внимание, что использование `repr(packed)` также устанавливает выравнивание типа в `1`.
 
-Finally, to specify a specific alignment, use `repr(align(n))`, where `n` is
-the number of bytes to align to (and must be a power of two):
+Наконец, чтобы указать конкретное выравнивание, используйте `repr(align(n))`, где `n` — это количество байтов для выравнивания (и должно быть степенью двойки):
 
 ```rust
 #[repr(C)]
@@ -393,25 +291,21 @@ fn main() {
 
 // 0x7ffec909a000 0x7ffec909a002 0x7ffec909a004
 // 0x7ffec909b000 0x7ffec909b002 0x7ffec909b004
-// The two instances `u` and `v` have been placed on 4096-byte alignments,
-// evidenced by the `000` at the end of their addresses.
+// Два экземпляра `u` и `v` размещены с выравниванием по 4096 байтам,
+// о чем свидетельствует `000` в конце их адресов.
 ```
 
-Note we can combine `repr(C)` with `repr(align(n))` to obtain an aligned and
-C-compatible layout. It is not permissible to combine `repr(align(n))` with
-`repr(packed)`, since `repr(packed)` sets the alignment to `1`. It is also not
-permissible for a `repr(packed)` type to contain a `repr(align(n))` type.
+Обратите внимание, что мы можем комбинировать `repr(C)` с `repr(align(n))` для получения выровненной и совместимой с C компоновки. Нельзя комбинировать `repr(align(n))` с `repr(packed)`, поскольку `repr(packed)` устанавливает выравнивание в `1`. Также недопустимо, чтобы тип `repr(packed)` содержал тип `repr(align(n))`.
 
-For further details on type layouts, refer to the [type layout] chapter of the
-Rust Reference.
+Для дополнительной информации о компоновке типов обратитесь к главе [компоновка типов][type layout] справочника Rust.
 
 [type layout]: https://doc.rust-lang.org/reference/type-layout.html
 
-## Other Resources
+## Другие ресурсы
 
-* In this book:
-    * [A little C with your Rust](../interoperability/c-with-rust.md)
-    * [A little Rust with your C](../interoperability/rust-with-c.md)
-* [The Rust Embedded FAQs](https://docs.rust-embedded.org/faq.html)
-* [Rust Pointers for C Programmers](http://blahg.josefsipek.net/?p=580)
-* [I used to use pointers - now what?](https://github.com/diwic/reffers-rs/blob/master/docs/Pointers.md)
+* В этой книге:
+    * [Немного C с вашим Rust](../interoperability/c-with-rust.md)
+    * [Немного Rust с вашим C](../interoperability/rust-with-c.md)
+* [Часто задаваемые вопросы по Rust Embedded](https://docs.rust-embedded.org/faq.html)
+* [Указатели Rust для программистов на C](http://blahg.josefsipek.net/?p=580)
+* [Я использовал указатели — что теперь?](https://github.com/diwic/reffers-rs/blob/master/docs/Pointers.md)

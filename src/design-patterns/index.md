@@ -1,3 +1,3 @@
-# Design Patterns
+# Шаблоны проектирования
 
-This chapter aims to collect various useful design patterns for embedded Rust.
+Эта глава стремится собрать различные полезные шаблоны проектирования для embedded Rust.

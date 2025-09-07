@@ -1,60 +1,55 @@
-# Installing the tools
+# Установка инструментов
 
-This page contains OS-agnostic installation instructions for a few of the tools:
+Эта страница содержит инструкции по установке некоторых инструментов, не зависящие от ОС:
 
-### Rust Toolchain
+### Цепочка инструментов Rust
 
-Install rustup by following the instructions at [https://rustup.rs](https://rustup.rs).
+Установите rustup, следуя инструкциям на [https://rustup.rs](https://rustup.rs).
 
-**NOTE** Make sure you have a compiler version equal to or newer than `1.31`. `rustc
--V` should return a date newer than the one shown below.
+**ПРИМЕЧАНИЕ** Убедитесь, что у вас версия компилятора не ниже 1.31. Команда `rustc -V` должна возвращать дату новее указанной ниже.
 
 ``` text
 $ rustc -V
 rustc 1.31.1 (b6c32da9b 2018-12-18)
 ```
 
-For bandwidth and disk usage concerns the default installation only supports
-native compilation. To add cross compilation support for the ARM Cortex-M
-architectures choose one of the following compilation targets. For the STM32F3DISCOVERY
-board used for the examples in this book, use the `thumbv7em-none-eabihf` target.
-[Find the best Cortex-M for you.](https://developer.arm.com/ip-products/processors/cortex-m#c-7d3b69ce-5b17-4c9e-8f06-59b605713133) 
+Для экономии трафика и места на диске установка по умолчанию поддерживает только нативную компиляцию. Чтобы добавить поддержку кросс-компиляции для архитектур ARM Cortex-M, выберите один из следующих целевых объектов компиляции. Для платы STM32F3DISCOVERY, используемой в примерах этой книги, используйте цель `thumbv7em-none-eabihf`.
+[Найдите подходящий Cortex-M для вас.](https://developer.arm.com/ip-products/processors/cortex-m#c-7d3b69ce-5b17-4c9e-8f06-59b605713133)
 
-Cortex-M0, M0+, and M1 (ARMv6-M architecture):
+Cortex-M0, M0+ и M1 (архитектура ARMv6-M):
 ``` console
 rustup target add thumbv6m-none-eabi
 ```
 
-Cortex-M3 (ARMv7-M architecture):
+Cortex-M3 (архитектура ARMv7-M):
 ``` console
 rustup target add thumbv7m-none-eabi
 ```
 
-Cortex-M4 and M7 without hardware floating point (ARMv7E-M architecture):
+Cortex-M4 и M7 без аппаратной поддержки операций с плавающей запятой (архитектура ARMv7E-M):
 ``` console
 rustup target add thumbv7em-none-eabi
 ```
 
-Cortex-M4F and M7F with hardware floating point (ARMv7E-M architecture):
+Cortex-M4F и M7F с аппаратной поддержкой операций с плавающей запятой (архитектура ARMv7E-M):
 ``` console
 rustup target add thumbv7em-none-eabihf
 ```
 
-Cortex-M23 (ARMv8-M architecture):
+Cortex-M23 (архитектура ARMv8-M):
 ``` console
 rustup target add thumbv8m.base-none-eabi
 ```
 
-Cortex-M33 and M35P (ARMv8-M architecture):
+Cortex-M33 и M35P (архитектура ARMv8-M):
 ``` console
 rustup target add thumbv8m.main-none-eabi
 ```
 
-Cortex-M33F and M35PF with hardware floating point (ARMv8-M architecture):
+Cortex-M33F и M35PF с аппаратной поддержкой операций с плавающей запятой (архитектура ARMv8-M):
 ``` console
 rustup target add thumbv8m.main-none-eabihf
 ```
-
 
 ### `cargo-binutils`
 
@@ -63,20 +58,20 @@ cargo install cargo-binutils
 
 rustup component add llvm-tools
 ```
-WINDOWS: prerequisite C++ Build Tools for Visual Studio 2019 is installed. https://visualstudio.microsoft.com/thank-you-downloading-visual-studio/?sku=BuildTools&rel=16 
+WINDOWS: убедитесь, что установлены C++ Build Tools для Visual Studio 2019. https://visualstudio.microsoft.com/thank-you-downloading-visual-studio/?sku=BuildTools&rel=16 
 ### `cargo-generate`
 
-We'll use this later to generate a project from a template.
+Мы используем это позже для генерации проекта из шаблона.
 
 ``` console
 cargo install cargo-generate
 ```
 
-Note: on some Linux distros (e.g. Ubuntu) you may need to install the packages `libssl-dev` and `pkg-config` prior to installing cargo-generate.
+Примечание: в некоторых дистрибутивах Linux (например, Ubuntu) может потребоваться установка пакетов `libssl-dev` и `pkg-config` перед установкой cargo-generate.
 
-### OS-Specific Instructions
+### Инструкции, специфичные для ОС
 
-Now follow the instructions specific to the OS you are using:
+Теперь следуйте инструкциям, специфичным для вашей ОС:
 
 - [Linux](install/linux.md)
 - [Windows](install/windows.md)

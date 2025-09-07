@@ -1,39 +1,38 @@
-# Meet Your Hardware
+# Знакомство с аппаратным обеспечением
 
-Let's get familiar with the hardware we'll be working with.
+Давайте познакомимся с аппаратным обеспечением, с которым мы будем работать.
 
-## STM32F3DISCOVERY (the "F3")
+## STM32F3DISCOVERY ( "F3")
 
 <p align="center">
 <img title="F3" src="../assets/f3.jpg">
 </p>
 
-What does this board contain?
+Что содержит эта плата?
 
-- A [STM32F303VCT6](https://www.st.com/en/microcontrollers/stm32f303vc.html) microcontroller. This microcontroller has
-  - A single-core ARM Cortex-M4F processor with hardware support for single-precision floating point
-    operations and a maximum clock frequency of 72 MHz.
+- Микроконтроллер [STM32F303VCT6](https://www.st.com/en/microcontrollers/stm32f303vc.html). Этот микроконтроллер имеет
+  - Одноядерный процессор ARM Cortex-M4F с аппаратной поддержкой операций с плавающей запятой одинарной точности и максимальной тактовой частотой 72 МГц.
 
-  - 256 KiB of "Flash" memory. (1 KiB = 10**24** bytes)
+  - 256 КБ "Flash" памяти. (1 КБ = 1024 байта)
 
-  - 48 KiB of RAM.
+  - 48 КБ ОЗУ.
 
-  - A variety of integrated peripherals such as timers, I2C, SPI and USART.
+  - Разнообразные интегрированные периферийные устройства, такие как таймеры, I2C, SPI и USART.
 
-  - General purpose Input Output (GPIO) and other types of pins accessible through the two rows of headers along side the board.
+  - Ввод/вывод общего назначения (GPIO) и другие типы пинов, доступные через две ряда заголовков вдоль края платы.
   
-  - A USB interface accessible through the USB port labeled "USB USER".
+  - Интерфейс USB, доступный через порт USB с меткой "USB USER".
 
-- An [accelerometer](https://en.wikipedia.org/wiki/Accelerometer) as part of the [LSM303DLHC](https://www.st.com/en/mems-and-sensors/lsm303dlhc.html) chip.
+- Акцелерометр как часть чипа [LSM303DLHC](https://www.st.com/en/mems-and-sensors/lsm303dlhc.html).
 
-- A [magnetometer](https://en.wikipedia.org/wiki/Magnetometer) as part of the [LSM303DLHC](https://www.st.com/en/mems-and-sensors/lsm303dlhc.html) chip.
+- Магнитометр как часть чипа [LSM303DLHC](https://www.st.com/en/mems-and-sensors/lsm303dlhc.html).
 
-- A [gyroscope](https://en.wikipedia.org/wiki/Gyroscope) as part of the [L3GD20](https://www.pololu.com/file/0J563/L3GD20.pdf) chip.
+- Гироскоп как часть чипа [L3GD20](https://www.pololu.com/file/0J563/L3GD20.pdf).
 
-- 8 user LEDs arranged in the shape of a compass.
+- 8 пользовательских светодиодов, расположенных в форме компаса.
 
-- A second microcontroller: a [STM32F103](https://www.st.com/en/microcontrollers/stm32f103cb.html). This microcontroller is actually part of an on-board programmer / debugger and is connected to the USB port named "USB ST-LINK".
+- Второй микроконтроллер: [STM32F103](https://www.st.com/en/microcontrollers/stm32f103cb.html). Этот микроконтроллер на самом деле является частью встроенного программатора/отладчика и подключен к порту USB с меткой "USB ST-LINK".
 
-For a more detailed list of features and further specifications of the board take a look at the [STMicroelectronics](https://www.st.com/en/evaluation-tools/stm32f3discovery.html) website.
+Для более подробного списка функций и дальнейших спецификаций платы посмотрите на сайте [STMicroelectronics](https://www.st.com/en/evaluation-tools/stm32f3discovery.html).
 
-A word of caution: be careful if you want to apply external signals to the board. The microcontroller STM32F303VCT6 pins take a nominal voltage of 3.3 volts. For further information consult the [6.2 Absolute maximum ratings section in the manual](https://www.st.com/resource/en/datasheet/stm32f303vc.pdf)
+Слово предосторожности: будьте осторожны, если хотите применять внешние сигналы к плате. Пины микроконтроллера STM32F303VCT6 принимают номинальное напряжение 3.3 вольта. Для дополнительной информации обратитесь к разделу [6.2 Absolute maximum ratings в руководстве](https://www.st.com/resource/en/datasheet/stm32f303vc.pdf)

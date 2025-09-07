@@ -1,23 +1,12 @@
-# Static Guarantees
+# Статические гарантии
 
-Rust's type system prevents data races at compile time (see [`Send`] and
-[`Sync`] traits). The type system can also be used to check other properties at
-compile time; reducing the need for runtime checks in some cases.
+Система типов Rust предотвращает гонки данных на этапе компиляции (см. трейты [`Send`] и [`Sync`]). Система типов также может использоваться для проверки других свойств на этапе компиляции, уменьшая необходимость проверок во время выполнения в некоторых случаях.
 
 [`Send`]: https://doc.rust-lang.org/core/marker/trait.Send.html
 [`Sync`]: https://doc.rust-lang.org/core/marker/trait.Sync.html
 
-When applied to embedded programs these *static checks* can be used, for
-example, to enforce that configuration of I/O interfaces is done properly. For
-instance, one can design an API where it is only possible to initialize a serial
-interface by first configuring the pins that will be used by the interface.
+При применении к встраиваемым программам эти *статические проверки* могут использоваться, например, для обеспечения правильной конфигурации интерфейсов ввода-вывода. Например, можно разработать API, в котором инициализация последовательного интерфейса возможна только после предварительной настройки пинов, которые будут использоваться этим интерфейсом.
 
-One can also statically check that operations, like setting a pin low, can only
-be performed on correctly configured peripherals. For example, trying to change
-the output state of a pin configured in floating input mode would raise a
-compile error.
+Также можно статически проверять, что такие операции, как установка пина в низкий уровень, могут выполняться только на правильно сконфигурированных периферийных устройствах. Например, попытка изменить состояние выхода пина, настроенного в режиме плавающего входа, вызовет ошибку компиляции.
 
-And, as seen in the previous chapter, the concept of ownership can be applied
-to peripherals to ensure that only certain parts of a program can modify a
-peripheral. This *access control* makes software easier to reason about
-compared to the alternative of treating peripherals as global mutable state.
+И, как было показано в предыдущей главе, концепция владения может быть применена к периферийным устройствам, чтобы гарантировать, что только определенные части программы могут изменять периферийное устройство. Этот *контроль доступа* делает программное обеспечение более предсказуемым по сравнению с альтернативой, когда периферийные устройства рассматриваются как глобальное изменяемое состояние.
