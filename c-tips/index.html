@@ -1,0 +1,461 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Советы для разработчиков на C для встраиваемых систем - The Embedded Rust Book</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="highlight-css" href="../highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="../tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "../searchindex.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">The Embedded Rust Book</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/rust-embedded/book" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <i class="fa fa-spinner fa-spin"></i>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="Советы-для-разработчиков-на-embedded-c"><a class="header" href="#Советы-для-разработчиков-на-embedded-c">Советы для разработчиков на embedded C</a></h1>
+<p>Эта глава собирает различные советы, которые могут быть полезны опытным разработчикам на embedded C, желающим начать писать на Rust. Особое внимание будет уделено тому, как вещи, к которым вы уже привыкли в C, отличаются в Rust.</p>
+<h2 id="Препроцессор"><a class="header" href="#Препроцессор">Препроцессор</a></h2>
+<p>В embedded C очень распространено использование препроцессора для различных целей, таких как:</p>
+<ul>
+<li>Выбор блоков кода во время компиляции с помощью <code>#ifdef</code></li>
+<li>Размеры массивов и вычисления во время компиляции</li>
+<li>Макросы для упрощения общих шаблонов (чтобы избежать накладных расходов на вызов функций)</li>
+</ul>
+<p>В Rust нет препроцессора, поэтому многие из этих случаев использования решаются по-другому. В остальной части этого раздела мы рассмотрим различные альтернативы использованию препроцессора.</p>
+<h3 id="Выбор-кода-во-время-компиляции"><a class="header" href="#Выбор-кода-во-время-компиляции">Выбор кода во время компиляции</a></h3>
+<p>Наиболее близким аналогом <code>#ifdef ... #endif</code> в Rust являются <a href="https://doc.rust-lang.org/cargo/reference/manifest.html#the-features-section">функции Cargo</a>. Они немного более формальны, чем препроцессор C: все возможные функции явно перечислены для каждого крейта и могут быть либо включены, либо выключены. Функции включаются при перечислении крейта как зависимости и являются аддитивными: если любой крейт в вашем дереве зависимостей включает функцию для другого крейта, эта функция будет включена для всех пользователей этого крейта.</p>
+<p>Например, у вас может быть крейт, предоставляющий библиотеку примитивов обработки сигналов. Каждый из них может требовать дополнительного времени на компиляцию или объявлять большую таблицу констант, которую вы хотите избежать. Вы можете объявить функцию Cargo для каждого компонента в вашем <code>Cargo.toml</code>:</p>
+<pre><code class="language-toml">[features]
+FIR = []
+IIR = []
+</code></pre>
+<p>Затем в вашем коде используйте <code>#[cfg(feature="FIR")]</code> для управления тем, что включается.</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>/// В вашем lib.rs верхнего уровня
+
+#[cfg(feature="FIR")]
+pub mod fir;
+
+#[cfg(feature="IIR")]
+pub mod iir;
+<span class="boring">}</span></code></pre></pre>
+<p>Аналогично вы можете включать блоки кода только если функция <em>не</em> включена или если любая комбинация функций включена или не включена.</p>
+<p>Кроме того, Rust предоставляет ряд автоматически устанавливаемых условий, которые вы можете использовать, таких как <code>target_arch</code> для выбора разного кода в зависимости от архитектуры. Для полного описания поддержки условной компиляции обратитесь к главе <a href="https://doc.rust-lang.org/reference/conditional-compilation.html">условная компиляция</a> справочника Rust.</p>
+<p>Условная компиляция применяется только к следующему утверждению или блоку. Если блок не может быть использован в текущей области видимости, то атрибут <code>cfg</code> нужно использовать несколько раз. Стоит отметить, что в большинстве случаев лучше просто включить весь код и позволить компилятору удалить неиспользуемый код при оптимизации: это проще для вас и ваших пользователей, и в общем случае компилятор хорошо справляется с удалением неиспользуемого кода.</p>
+<h3 id="Размеры-и-вычисления-во-время-компиляции"><a class="header" href="#Размеры-и-вычисления-во-время-компиляции">Размеры и вычисления во время компиляции</a></h3>
+<p>Rust поддерживает <code>const fn</code>, функции, которые гарантированно вычисляемы во время компиляции и поэтому могут использоваться там, где требуются константы, например, в размере массивов. Это можно использовать вместе с функциями, упомянутыми выше, например:</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>const fn array_size() -&gt; usize {
+    #[cfg(feature="use_more_ram")]
+    { 1024 }
+    #[cfg(not(feature="use_more_ram"))]
+    { 128 }
+}
+
+static BUF: [u32; array_size()] = [0u32; array_size()];
+<span class="boring">}</span></code></pre></pre>
+<p>Это новинка в стабильном Rust с версии 1.31, поэтому документация все еще скудна. Функциональность, доступная для <code>const fn</code>, также очень ограничена на момент написания; в будущих релизах Rust ожидается расширение того, что разрешено в <code>const fn</code>.</p>
+<h3 id="Макросы"><a class="header" href="#Макросы">Макросы</a></h3>
+<p>Rust предоставляет чрезвычайно мощную <a href="https://doc.rust-lang.org/book/ch19-06-macros.html">систему макросов</a>. В то время как препроцессор C работает почти напрямую с текстом вашего исходного кода, система макросов Rust работает на более высоком уровне. Существуют два вида макросов Rust: <em>макросы по примеру</em> и <em>процедурные макросы</em>. Первые проще и наиболее распространены; они выглядят как вызовы функций и могут расширяться в полное выражение, утверждение, элемент или шаблон. Процедурные макросы более сложны, но позволяют чрезвычайно мощные дополнения к языку Rust: они могут преобразовывать произвольный синтаксис Rust в новый синтаксис Rust.</p>
+<p>В общем, там, где вы могли бы использовать макрос препроцессора C, вы, вероятно, хотите посмотреть, может ли макрос по примеру справиться с задачей. Они могут быть определены в вашем крейте и легко использоваться вашим крейтом или экспортироваться для других пользователей. Имейте в виду, что поскольку они должны расширяться в полные выражения, утверждения, элементы или шаблоны, некоторые случаи использования макросов препроцессора C не будут работать, например, макрос, который расширяется в часть имени переменной или неполный набор элементов в списке.</p>
+<p>Как и с функциями Cargo, стоит подумать, нужен ли вам макрос вообще. Во многих случаях обычная функция проще для понимания и будет встроена в тот же код, что и макрос. Атрибуты <code>#[inline]</code> и <code>#[inline(always)]</code> <a href="https://doc.rust-lang.org/reference/attributes.html#inline-attribute">attributes</a> дают вам дополнительный контроль над этим процессом, хотя здесь тоже следует проявлять осторожность — компилятор автоматически встраивает функции из того же крейта, где это уместно, так что принуждение к этому неуместно может привести к снижению производительности.</p>
+<p>Объяснение всей системы макросов Rust выходит за рамки этой страницы советов, поэтому рекомендуется обратиться к документации Rust за полными деталями.</p>
+<h2 id="Система-сборки"><a class="header" href="#Система-сборки">Система сборки</a></h2>
+<p>Большинство крейтов Rust собираются с использованием Cargo (хотя это не обязательно). Это решает многие сложные проблемы традиционных систем сборки. Однако вы можете захотеть настроить процесс сборки. Cargo предоставляет <a href="https://doc.rust-lang.org/cargo/reference/build-scripts.html">скрипты <code>build.rs</code></a> для этой цели. Это скрипты на Rust, которые могут взаимодействовать с системой сборки Cargo по мере необходимости.</p>
+<p>Общие случаи использования скриптов сборки включают:</p>
+<ul>
+<li>предоставление информации во время сборки, например, статическое встраивание даты сборки или хэша коммита Git в исполняемый файл</li>
+<li>генерация скриптов линковки во время сборки в зависимости от выбранных функций или другой логики</li>
+<li>изменение конфигурации сборки Cargo</li>
+<li>добавление дополнительных статических библиотек для линковки</li>
+</ul>
+<p>На данный момент нет поддержки скриптов после сборки, которые вы могли бы традиционно использовать для задач, таких как автоматическая генерация бинарных файлов из объектов сборки или печать информации о сборке.</p>
+<h3 id="Кросс-компиляция"><a class="header" href="#Кросс-компиляция">Кросс-компиляция</a></h3>
+<p>Использование Cargo для системы сборки также упрощает кросс-компиляцию. В большинстве случаев достаточно указать Cargo <code>--target thumbv6m-none-eabi</code> и найти подходящий исполняемый файл в <code>target/thumbv6m-none-eabi/debug/myapp</code>.</p>
+<p>Для платформ, не поддерживаемых Rust нативно, вам нужно будет собрать <code>libcore</code> для этой цели самостоятельно. На таких платформах можно использовать <a href="https://github.com/japaric/xargo">Xargo</a> как замену Cargo, который автоматически собирает <code>libcore</code> для вас.</p>
+<h2 id="Итераторы-против-доступа-к-массиву"><a class="header" href="#Итераторы-против-доступа-к-массиву">Итераторы против доступа к массиву</a></h2>
+<p>В C вы, вероятно, привыкли обращаться к массивам напрямую по индексу:</p>
+<pre><code class="language-c">int16_t arr[16];
+int i;
+for(i = 0; i &lt; sizeof(arr)/sizeof(arr[0]); i++) {
+    arr[i] = i;
+}
+</code></pre>
+<p>В Rust предпочтительным подходом является использование итераторов, которые часто более безопасны и выразительны. Например:</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>let mut arr = [0i16; 16];
+for (i, v) in arr.iter_mut().enumerate() {
+    *v = i as i16;
+}
+<span class="boring">}</span></code></pre></pre>
+<p>Итераторы в Rust позволяют избежать ошибок, связанных с выходом за границы массива, и предоставляют мощные методы для обработки данных. Однако в контексте embedded, где производительность критична, иногда может потребоваться прямой доступ к массиву, как в C. В таких случаях вы можете использовать индексацию, но будьте осторожны с проверкой границ:</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>let mut arr = [0i16; 16];
+for i in 0..arr.len() {
+    arr[i] = i as i16;
+}
+<span class="boring">}</span></code></pre></pre>
+<h2 id="Указатели"><a class="header" href="#Указатели">Указатели</a></h2>
+<p>В C указатели — это фундаментальная часть языка, используемая для прямого доступа к памяти, особенно в embedded-разработке. В Rust указатели существуют, но их использование ограничено из-за системы владения и заимствования. В Rust есть два типа сырых указателей: <code>*const T</code> и <code>*mut T</code>. Они похожи на указатели в C в том смысле, что их можно разыменовать для доступа к базовым значениям, но они являются ключевой частью системы владения Rust: Rust строго обеспечивает, что у вас может быть только одна изменяемая ссылка <em>или</em> несколько неизменяемых ссылок на одно и то же значение в любой момент времени.</p>
+<p>На практике это означает, что вы должны быть более осторожны с тем, нужен ли вам изменяемый доступ к данным: если в C по умолчанию все изменяемо и вы должны явно указывать <code>const</code>, в Rust наоборот.</p>
+<p>Одна ситуация, когда вы все еще можете использовать сырые указатели, — это прямое взаимодействие с аппаратным обеспечением (например, запись указателя на буфер в регистр DMA), и они также используются под капотом во всех крейтах доступа к периферийным устройствам, чтобы позволить вам читать и записывать регистры с отображением в память.</p>
+<h2 id="Волатильный-доступ"><a class="header" href="#Волатильный-доступ">Волатильный доступ</a></h2>
+<p>В C отдельные переменные могут быть помечены как <code>volatile</code>, что указывает компилятору, что значение переменной может измениться между обращениями. Волатильные переменные обычно используются в контексте embedded для регистров с отображением в память.</p>
+<p>В Rust вместо пометки переменной как <code>volatile</code> мы используем специальные методы для выполнения волатильного доступа: <a href="https://doc.rust-lang.org/core/ptr/fn.read_volatile.html"><code>core::ptr::read_volatile</code></a> и <a href="https://doc.rust-lang.org/core/ptr/fn.write_volatile.html"><code>core::ptr::write_volatile</code></a>. Эти методы принимают <code>*const T</code> или <code>*mut T</code> (<em>сырые указатели</em>, как обсуждалось выше) и выполняют волатильное чтение или запись.</p>
+<p>Например, в C вы могли бы написать:</p>
+<pre><code class="language-c">volatile bool signalled = false;
+
+void ISR() {
+    // Сигнализируем, что прерывание произошло
+    signalled = true;
+}
+
+void driver() {
+    while(true) {
+        // Спим до сигнала
+        while(!signalled) { WFI(); }
+        // Сбрасываем индикатор сигнала
+        signalled = false;
+        // Выполняем задачу, ожидающую прерывания
+        run_task();
+    }
+}
+</code></pre>
+<p>Эквивалент в Rust использовал бы волатильные методы для каждого доступа:</p>
+<pre><code class="language-rust ignore">static mut SIGNALLED: bool = false;
+
+#[interrupt]
+fn ISR() {
+    // Сигнализируем, что прерывание произошло
+    // (В реальном коде следует рассмотреть примитив более высокого уровня,
+    // например, атомарный тип).
+    unsafe { core::ptr::write_volatile(&amp;mut SIGNALLED, true) };
+}
+
+fn driver() {
+    loop {
+        // Спим до сигнала
+        while unsafe { !core::ptr::read_volatile(&amp;SIGNALLED) } {}
+        // Сбрасываем индикатор сигнала
+        unsafe { core::ptr::write_volatile(&amp;mut SIGNALLED, false) };
+        // Выполняем задачу, ожидающую прерывания
+        run_task();
+    }
+}</code></pre>
+<p>Несколько моментов, которые стоит отметить в примере кода:</p>
+<ul>
+<li>Мы можем передать <code>&amp;mut SIGNALLED</code> в функцию, требующую <code>*mut T</code>, поскольку <code>&amp;mut T</code> автоматически преобразуется в <code>*mut T</code> (и то же самое для <code>*const T</code>)</li>
+<li>Нам нужны блоки <code>unsafe</code> для методов <code>read_volatile</code>/<code>write_volatile</code>, поскольку это небезопасные функции. Ответственность за обеспечение безопасного использования лежит на программисте: подробности см. в документации методов.</li>
+</ul>
+<p>Прямое использование этих функций в вашем коде редко требуется, так как они обычно обрабатываются библиотеками более высокого уровня. Для регистров с отображением в память крейты доступа к периферийным устройствам автоматически реализуют волатильный доступ, в то время как для примитивов параллелизма доступны лучшие абстракции (см. главу <a href="../concurrency/index.html">Параллелизм</a>).</p>
+<h2 id="Упакованные-и-выровненные-типы"><a class="header" href="#Упакованные-и-выровненные-типы">Упакованные и выровненные типы</a></h2>
+<p>В embedded C часто указывают компилятору, что переменная должна иметь определенное выравнивание или структура должна быть упакована, а не выровнена, обычно для соответствия требованиям аппаратного обеспечения или протокола.</p>
+<p>В Rust это контролируется атрибутом <code>repr</code> для структуры или объединения. Представление по умолчанию не предоставляет гарантий компоновки, поэтому его не следует использовать для кода, взаимодействующего с аппаратным обеспечением или C. Компилятор может переупорядочить члены структуры или вставить заполнение, и поведение может измениться в будущих версиях Rust.</p>
+<pre><pre class="playground"><code class="language-rust">struct Foo {
+    x: u16,
+    y: u8,
+    z: u16,
+}
+
+fn main() {
+    let v = Foo { x: 0, y: 0, z: 0 };
+    println!("{:p} {:p} {:p}", &amp;v.x, &amp;v.y, &amp;v.z);
+}
+
+// 0x7ffecb3511d0 0x7ffecb3511d4 0x7ffecb3511d2
+// Обратите внимание, что порядок изменен на x, z, y для улучшения упаковки.</code></pre></pre>
+<p>Чтобы обеспечить компоновку, совместимую с C, используйте <code>repr(C)</code>:</p>
+<pre><pre class="playground"><code class="language-rust">#[repr(C)]
+struct Foo {
+    x: u16,
+    y: u8,
+    z: u16,
+}
+
+fn main() {
+    let v = Foo { x: 0, y: 0, z: 0 };
+    println!("{:p} {:p} {:p}", &amp;v.x, &amp;v.y, &amp;v.z);
+}
+
+// 0x7fffd0d84c60 0x7fffd0d84c62 0x7fffd0d84c64
+// Порядок сохранен, и компоновка не изменится со временем.
+// `z` выровнен по двум байтам, поэтому между `y` и `z` существует байт заполнения.</code></pre></pre>
+<p>Для обеспечения упакованного представления используйте <code>repr(packed)</code>:</p>
+<pre><pre class="playground"><code class="language-rust">#[repr(packed)]
+struct Foo {
+    x: u16,
+    y: u8,
+    z: u16,
+}
+
+fn main() {
+    let v = Foo { x: 0, y: 0, z: 0 };
+    // Ссылки всегда должны быть выровнены, поэтому для проверки адресов полей структуры
+    // мы используем `std::ptr::addr_of!()` для получения сырого указателя
+    // вместо простого вывода `&amp;v.x`.
+    let px = std::ptr::addr_of!(v.x);
+    let py = std::ptr::addr_of!(v.y);
+    let pz = std::ptr::addr_of!(v.z);
+    println!("{:p} {:p} {:p}", px, py, pz);
+}
+
+// 0x7ffd33598490 0x7ffd33598492 0x7ffd33598493
+// Между `y` и `z` не вставлено заполнение, поэтому теперь `z` не выровнен.</code></pre></pre>
+<p>Обратите внимание, что использование <code>repr(packed)</code> также устанавливает выравнивание типа в <code>1</code>.</p>
+<p>Наконец, чтобы указать конкретное выравнивание, используйте <code>repr(align(n))</code>, где <code>n</code> — это количество байтов для выравнивания (и должно быть степенью двойки):</p>
+<pre><pre class="playground"><code class="language-rust">#[repr(C)]
+#[repr(align(4096))]
+struct Foo {
+    x: u16,
+    y: u8,
+    z: u16,
+}
+
+fn main() {
+    let v = Foo { x: 0, y: 0, z: 0 };
+    let u = Foo { x: 0, y: 0, z: 0 };
+    println!("{:p} {:p} {:p}", &amp;v.x, &amp;v.y, &amp;v.z);
+    println!("{:p} {:p} {:p}", &amp;u.x, &amp;u.y, &amp;u.z);
+}
+
+// 0x7ffec909a000 0x7ffec909a002 0x7ffec909a004
+// 0x7ffec909b000 0x7ffec909b002 0x7ffec909b004
+// Два экземпляра `u` и `v` размещены с выравниванием по 4096 байтам,
+// о чем свидетельствует `000` в конце их адресов.</code></pre></pre>
+<p>Обратите внимание, что мы можем комбинировать <code>repr(C)</code> с <code>repr(align(n))</code> для получения выровненной и совместимой с C компоновки. Нельзя комбинировать <code>repr(align(n))</code> с <code>repr(packed)</code>, поскольку <code>repr(packed)</code> устанавливает выравнивание в <code>1</code>. Также недопустимо, чтобы тип <code>repr(packed)</code> содержал тип <code>repr(align(n))</code>.</p>
+<p>Для дополнительной информации о компоновке типов обратитесь к главе <a href="https://doc.rust-lang.org/reference/type-layout.html">компоновка типов</a> справочника Rust.</p>
+<h2 id="Другие-ресурсы"><a class="header" href="#Другие-ресурсы">Другие ресурсы</a></h2>
+<ul>
+<li>В этой книге:
+<ul>
+<li><a href="../interoperability/c-with-rust.html">Немного C с вашим Rust</a></li>
+<li><a href="../interoperability/rust-with-c.html">Немного Rust с вашим C</a></li>
+</ul>
+</li>
+<li><a href="https://docs.rust-embedded.org/faq.html">Часто задаваемые вопросы по Rust Embedded</a></li>
+<li><a href="http://blahg.josefsipek.net/?p=580">Указатели Rust для программистов на C</a></li>
+<li><a href="https://github.com/diwic/reffers-rs/blob/master/docs/Pointers.md">Я использовал указатели — что теперь?</a></li>
+</ul>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../design-patterns/hal/gpio.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../interoperability/index.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../design-patterns/hal/gpio.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../interoperability/index.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>

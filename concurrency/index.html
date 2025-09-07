@@ -1,0 +1,458 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Параллелизм - The Embedded Rust Book</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="highlight-css" href="../highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="../tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "../searchindex.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">The Embedded Rust Book</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/rust-embedded/book" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <i class="fa fa-spinner fa-spin"></i>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="Параллелизм"><a class="header" href="#Параллелизм">Параллелизм</a></h1>
+<p>Параллелизм возникает, когда разные части вашей программы могут выполняться в разное время или не по порядку. В контексте встраиваемых систем это включает:</p>
+<ul>
+<li>Обработчики прерываний, которые запускаются при возникновении соответствующего прерывания.</li>
+<li>Различные формы многопоточности, когда микропроцессор регулярно переключается между частями вашей программы.</li>
+<li>В некоторых системах — многоядерные микропроцессоры, где каждое ядро может независимо выполнять разные части программы одновременно.</li>
+</ul>
+<p>Поскольку многие программы для встраиваемых систем должны работать с прерываниями, вопросы параллелизма возникают рано или поздно, и именно здесь могут появляться тонкие и сложные ошибки. К счастью, Rust предоставляет ряд абстракций и гарантий безопасности, которые помогают писать корректный код.</p>
+<h2 id="Отсутствие-параллелизма"><a class="header" href="#Отсутствие-параллелизма">Отсутствие параллелизма</a></h2>
+<p>Самый простой подход к параллелизму в программе для встраиваемых систем — это его полное отсутствие: программа состоит из одного основного цикла, который непрерывно выполняется, и прерывания полностью отсутствуют. Иногда это идеально подходит для решаемой задачи! Обычно такой цикл считывает входные данные, выполняет их обработку и записывает выходные данные.</p>
+<pre><code class="language-rust ignore">#[entry]
+fn main() {
+    let peripherals = setup_peripherals();
+    loop {
+        let inputs = read_inputs(&amp;peripherals);
+        let outputs = process(inputs);
+        write_outputs(&amp;peripherals, outputs);
+    }
+}</code></pre>
+<p>Поскольку параллелизм отсутствует, нет необходимости беспокоиться о совместном использовании данных между частями программы или синхронизации доступа к периферийным устройствам. Если такой простой подход подходит для вашей задачи, это может быть отличным решением.</p>
+<h2 id="Глобальные-изменяемые-данные"><a class="header" href="#Глобальные-изменяемые-данные">Глобальные изменяемые данные</a></h2>
+<p>В отличие от Rust для не-встраиваемых систем, мы обычно не можем позволить себе создавать выделения памяти на куче и передавать ссылки на эти данные в новые потоки. Вместо этого обработчики прерываний могут быть вызваны в любой момент и должны знать, как получить доступ к общей памяти. На самом низком уровне это означает, что у нас должна быть <em>статически выделенная</em> изменяемая память, на которую могут ссылаться как обработчик прерываний, так и основной код.</p>
+<p>В Rust такие переменные <a href="https://doc.rust-lang.org/book/ch19-01-unsafe-rust.html#accessing-or-modifying-a-mutable-static-variable"><code>static mut</code></a> всегда небезопасны для чтения или записи, так как без особых мер предосторожности можно вызвать состояние гонки, когда доступ к переменной прерывается на полпути прерыванием, которое также обращается к этой переменной.</p>
+<p>Для примера, как это поведение может вызывать тонкие ошибки, рассмотрим программу для встраиваемых систем, которая подсчитывает восходящие фронты входного сигнала за каждый односекундный период (счетчик частоты):</p>
+<pre><code class="language-rust ignore">static mut COUNTER: u32 = 0;
+
+#[entry]
+fn main() -&gt; ! {
+    set_timer_1hz();
+    let mut last_state = false;
+    loop {
+        let state = read_signal_level();
+        if state &amp;&amp; !last_state {
+            // ОПАСНОСТЬ - На самом деле не безопасно! Может вызвать гонки данных.
+            unsafe { COUNTER += 1 };
+        }
+        last_state = state;
+    }
+}
+
+#[interrupt]
+fn timer() {
+    unsafe { COUNTER = 0; }
+}</code></pre>
+<p>Каждую секунду прерывание таймера сбрасывает счетчик в 0. Тем временем основной цикл непрерывно измеряет сигнал и увеличивает счетчик при обнаружении перехода с низкого уровня на высокий. Нам пришлось использовать <code>unsafe</code> для доступа к <code>COUNTER</code>, так как это <code>static mut</code>, что означает, что мы обещаем компилятору не вызывать неопределенное поведение. Можете ли вы заметить состояние гонки? Операция увеличения <code>COUNTER</code> <em>не</em> гарантированно атомарна — на большинстве платформ для встраиваемых систем она будет разделена на загрузку, увеличение и сохранение. Если прерывание сработает после загрузки, но до сохранения, сброс в 0 будет проигнорирован после возврата из прерывания — и мы подсчитаем в два раза больше переходов за этот период.</p>
+<h2 id="Критические-секции"><a class="header" href="#Критические-секции">Критические секции</a></h2>
+<p>Как справиться с гонками данных? Простой подход — использовать <em>критические секции</em>, контекст, в котором прерывания отключены. Обернув доступ к <code>COUNTER</code> в <code>main</code> в критическую секцию, мы можем быть уверены, что прерывание таймера не сработает, пока мы не закончим увеличение <code>COUNTER</code>:</p>
+<pre><code class="language-rust ignore">static mut COUNTER: u32 = 0;
+
+#[entry]
+fn main() -&gt; ! {
+    set_timer_1hz();
+    let mut last_state = false;
+    loop {
+        let state = read_signal_level();
+        if state &amp;&amp; !last_state {
+            // Новая критическая секция обеспечивает синхронизированный доступ к COUNTER
+            cortex_m::interrupt::free(|_| {
+                unsafe { COUNTER += 1 };
+            });
+        }
+        last_state = state;
+    }
+}
+
+#[interrupt]
+fn timer() {
+    unsafe { COUNTER = 0; }
+}</code></pre>
+<p>В этом примере мы используем <code>cortex_m::interrupt::free</code>, но на других платформах будут аналогичные механизмы для выполнения кода в критической секции. Это эквивалентно отключению прерываний, выполнению кода и последующему их включению.</p>
+<p>Обратите внимание, что критическая секция не понадобилась внутри прерывания таймера по двум причинам:</p>
+<ul>
+<li>Запись 0 в <code>COUNTER</code> не может быть затронута гонкой, так как мы не читаем его.</li>
+<li>Прерывание в любом случае не будет прервано основным потоком.</li>
+</ul>
+<p>Если <code>COUNTER</code> разделяется между несколькими обработчиками прерываний, которые могут <em>вытеснять</em> друг друга, то для каждого из них также может потребоваться критическая секция.</p>
+<p>Этот подход решает нашу проблему, но мы по-прежнему пишем много небезопасного кода, о котором нужно тщательно рассуждать, и можем использовать критические секции без необходимости. Каждая критическая секция временно приостанавливает обработку прерываний, что увеличивает размер кода, задержку и джиттер прерываний (прерывания могут обрабатываться дольше, и время до их обработки становится более переменным). Является ли это проблемой, зависит от вашей системы, но в целом мы хотели бы этого избежать.</p>
+<p>Важно отметить, что критическая секция гарантирует отсутствие срабатывания прерываний, но не обеспечивает гарантии эксклюзивности в многоядерных системах! Другое ядро может одновременно обращаться к той же памяти, даже без прерываний. Для многоядерных систем потребуются более мощные примитивы синхронизации.</p>
+<h2 id="Атомарный-доступ"><a class="header" href="#Атомарный-доступ">Атомарный доступ</a></h2>
+<p>На некоторых платформах доступны специальные атомарные инструкции, которые обеспечивают гарантии для операций чтения-модификации-записи. В частности, для Cortex-M: <code>thumbv6</code> (Cortex-M0, Cortex-M0+) поддерживает только атомарные инструкции загрузки и сохранения, тогда как <code>thumbv7</code> (Cortex-M3 и выше) предоставляет полные инструкции Compare and Swap (CAS). Эти инструкции CAS являются альтернативой полному отключению прерываний: мы можем попытаться выполнить увеличение, которое в большинстве случаев успешно, но если оно прерывается, операция увеличения автоматически повторяется. Эти атомарные операции безопасны даже в многоядерных системах.</p>
+<pre><code class="language-rust ignore">use core::sync::atomic::{AtomicUsize, Ordering};
+
+static COUNTER: AtomicUsize = AtomicUsize::new(0);
+
+#[entry]
+fn main() -&gt; ! {
+    set_timer_1hz();
+    let mut last_state = false;
+    loop {
+        let state = read_signal_level();
+        if state &amp;&amp; !last_state {
+            // Используем `fetch_add` для атомарного добавления 1 к COUNTER
+            COUNTER.fetch_add(1, Ordering::Relaxed);
+        }
+        last_state = state;
+    }
+}
+
+#[interrupt]
+fn timer() {
+    // Используем `store` для прямой записи 0 в COUNTER
+    COUNTER.store(0, Ordering::Relaxed);
+}</code></pre>
+<p>Теперь <code>COUNTER</code> — это безопасная <code>static</code> переменная. Благодаря типу <code>AtomicUsize</code> переменная <code>COUNTER</code> может быть безопасно модифицирована как из обработчика прерываний, так и из основного потока без отключения прерываний. Использование <code>Ordering::Relaxed</code> минимизирует накладные расходы на синхронизацию, так как в данном случае не требуется строгая упорядоченность операций между потоками.</p>
+<h2 id="Доступ-к-периферийным-устройствам"><a class="header" href="#Доступ-к-периферийным-устройствам">Доступ к периферийным устройствам</a></h2>
+<p>В дополнение к общим данным программы часто требуется разделять доступ к периферийным устройствам между основным потоком и обработчиками прерываний. Например, мы можем захотеть считывать входной сигнал с пина GPIO в основном цикле и управлять выходным сигналом с того же порта GPIO в обработчике прерываний.</p>
+<p>Типичная проблема в embedded-программах заключается в том, что периферийные устройства являются синглтонами: существует только один экземпляр каждого периферийного устройства. В Rust это часто моделируется с помощью метода <code>take()</code>, который возвращает <code>Option</code> и позволяет захватить периферийное устройство в момент выполнения программы. Чтобы безопасно разделять доступ к такому синглтону, мы можем использовать <code>Mutex</code> и <code>RefCell</code> из библиотеки <code>cortex_m</code> для обеспечения синхронизированного доступа в критических секциях.</p>
+<pre><code class="language-rust ignore">use core::cell::RefCell;
+use cortex_m::interrupt::{self, Mutex};
+use stm32f4::stm32f405;
+
+static MY_GPIO: Mutex&lt;RefCell&lt;Option&lt;stm32f405::GPIOA&gt;&gt;&gt; =
+    Mutex::new(RefCell::new(None));
+
+#[entry]
+fn main() -&gt; ! {
+    // Получаем синглтоны периферийных устройств и настраиваем их.
+    // Этот пример использует крейт, сгенерированный svd2rust, но
+    // большинство крейтов для встраиваемых устройств будут похожими.
+    let dp = stm32f405::Peripherals::take().unwrap();
+    let gpioa = &amp;dp.GPIOA;
+
+    // Некоторая функция настройки.
+    // Предположим, она устанавливает PA0 как вход и PA1 как выход.
+    configure_gpio(gpioa);
+
+    // Сохраняем GPIOA в мьютекс, перемещая его.
+    interrupt::free(|cs| MY_GPIO.borrow(cs).replace(Some(dp.GPIOA)));
+    // Теперь мы больше не можем использовать `gpioa` или `dp.GPIOA`, и должны
+    // обращаться к нему через мьютекс.
+
+    // Будьте осторожны, включая прерывание только после настройки MY_GPIO:
+    // иначе прерывание может сработать, пока MY_GPIO содержит None,
+    // и в текущей реализации (с `unwrap()`) это вызовет панику.
+    set_timer_1hz();
+    let mut last_state = false;
+    loop {
+        // Теперь мы будем считывать состояние как цифровой вход через мьютекс
+        let state = interrupt::free(|cs| {
+            let gpioa = MY_GPIO.borrow(cs).borrow();
+            gpioa.as_ref().unwrap().idr.read().idr0().bit_is_set()
+        });
+
+        if state &amp;&amp; !last_state {
+            // Устанавливаем PA1 в высокий уровень, если обнаружен восходящий фронт на PA0.
+            interrupt::free(|cs| {
+                let gpioa = MY_GPIO.borrow(cs).borrow();
+                gpioa.as_ref().unwrap().odr.modify(|_, w| w.odr1().set_bit());
+            });
+        }
+        last_state = state;
+    }
+}
+
+#[interrupt]
+fn timer() {
+    // В прерывании мы просто сбрасываем PA0.
+    interrupt::free(|cs| {
+        // Мы можем использовать `unwrap()`, потому что знаем, что прерывание
+        // не было включено до установки MY_GPIO; в противном случае нужно
+        // обрабатывать возможность значения None.
+        let gpioa = MY_GPIO.borrow(cs).borrow();
+        gpioa.as_ref().unwrap().odr.modify(|_, w| w.odr1().clear_bit());
+    });
+}</code></pre>
+<p>Это довольно объемный код, поэтому разберем ключевые моменты.</p>
+<pre><code class="language-rust ignore">static MY_GPIO: Mutex&lt;RefCell&lt;Option&lt;stm32f405::GPIOA&gt;&gt;&gt; =
+    Mutex::new(RefCell::new(None));</code></pre>
+<p>Наша общая переменная — это <code>Mutex</code>, содержащий <code>RefCell</code>, который в свою очередь содержит <code>Option</code>. <code>Mutex</code> обеспечивает доступ только в критической секции, что делает переменную безопасной для синхронизации (<code>Sync</code>), хотя обычный <code>RefCell</code> не является <code>Sync</code>. <code>RefCell</code> предоставляет внутреннюю изменяемость через ссылки, что необходимо для работы с <code>GPIOA</code>. <code>Option</code> позволяет инициализировать переменную пустым значением и позже переместить в нее фактическое значение. Мы не можем получить доступ к синглтону периферийного устройства статически, только во время выполнения, поэтому это необходимо.</p>
+<pre><code class="language-rust ignore">interrupt::free(|cs| MY_GPIO.borrow(cs).replace(Some(dp.GPIOA)));</code></pre>
+<p>Внутри критической секции мы вызываем <code>borrow()</code> на мьютексе, что дает нам ссылку на <code>RefCell</code>. Затем мы вызываем <code>replace()</code>, чтобы переместить новое значение в <code>RefCell</code>.</p>
+<pre><code class="language-rust ignore">interrupt::free(|cs| {
+    let gpioa = MY_GPIO.borrow(cs).borrow();
+    gpioa.as_ref().unwrap().odr.modify(|_, w| w.odr1().set_bit());
+});</code></pre>
+<p>Наконец, мы используем <code>MY_GPIO</code> безопасно и параллельно. Критическая секция предотвращает срабатывание прерывания, как обычно, и позволяет нам заимствовать мьютекс. <code>RefCell</code> дает нам <code>&amp;Option&lt;GPIOA&gt;</code> и отслеживает, как долго он остается заимствованным — после выхода ссылки из области видимости <code>RefCell</code> обновляется, указывая, что он больше не заимствован.</p>
+<p>Поскольку мы не можем переместить <code>GPIOA</code> из <code>&amp;Option</code>, нам нужно преобразовать его в <code>&amp;Option&lt;&amp;GPIOA&gt;</code> с помощью <code>as_ref()</code>, который мы затем можем <code>unwrap()</code>, чтобы получить <code>&amp;GPIOA</code>, позволяющий модифицировать периферийное устройство.</p>
+<p>Если требуется изменяемая ссылка на общий ресурс, следует использовать <code>borrow_mut</code> и <code>deref_mut</code>. Следующий код показывает пример с использованием таймера TIM2.</p>
+<pre><code class="language-rust ignore">use core::cell::RefCell;
+use core::ops::DerefMut;
+use cortex_m::interrupt::{self, Mutex};
+use cortex_m::asm::wfi;
+use stm32f4::stm32f405;
+
+static G_TIM: Mutex&lt;RefCell&lt;Option&lt;Timer&lt;stm32f4::stm32f405::TIM2&gt;&gt;&gt;&gt; =
+    Mutex::new(RefCell::new(None));
+
+#[entry]
+fn main() -&gt; ! {
+    let mut cp = cortex_m::Peripherals::take().unwrap();
+    let dp = stm32f4::stm32f405::Peripherals::take().unwrap();
+
+    // Некоторая функция настройки таймера.
+    // Предположим, она настраивает таймер TIM2, его прерывание NVIC
+    // и запускает таймер.
+    let tim = configure_timer_interrupt(&amp;mut cp, dp);
+
+    interrupt::free(|cs| {
+        G_TIM.borrow(cs).replace(Some(tim));
+    });
+
+    loop {
+        wfi();
+    }
+}
+
+#[interrupt]
+fn timer() {
+    interrupt::free(|cs| {
+        if let Some(ref mut tim) = G_TIM.borrow(cs).borrow_mut().deref_mut() {
+            tim.start(1.hz());
+        }
+    });
+}</code></pre>
+<p>Это безопасно, но немного громоздко. Есть ли другие варианты?</p>
+<h2 id="rtic"><a class="header" href="#rtic">RTIC</a></h2>
+<p>Одной из альтернатив является фреймворк <a href="https://github.com/rtic-rs/cortex-m-rtic">RTIC</a>, сокращение от Real Time Interrupt-driven Concurrency (Параллелизм, управляемый прерываниями реального времени). Он обеспечивает статические приоритеты и отслеживает доступ к переменным <code>static mut</code> (называемым "ресурсами"), чтобы статически гарантировать безопасный доступ к общим ресурсам без необходимости постоянного входа в критические секции и использования подсчета ссылок (как в <code>RefCell</code>). Это дает ряд преимуществ, таких как отсутствие тупиков и чрезвычайно низкие затраты по времени и памяти.</p>
+<p>Фреймворк также включает другие функции, такие как передача сообщений, что уменьшает необходимость в явном общем состоянии, и возможность планировать задачи для выполнения в определенное время, что можно использовать для реализации периодических задач. Подробности см. в <a href="https://rtic.rs">документации</a>.</p>
+<h2 id="Операционные-системы-реального-времени"><a class="header" href="#Операционные-системы-реального-времени">Операционные системы реального времени</a></h2>
+<p>Еще одна распространенная модель для параллелизма во встраиваемых системах — операционные системы реального времени (RTOS). Хотя в Rust они пока менее исследованы, они широко используются в традиционной разработке для встраиваемых систем. Примеры с открытым исходным кодом включают <a href="https://freertos.org/">FreeRTOS</a> и <a href="http://chibios.org/">ChibiOS</a>. Эти RTOS предоставляют поддержку выполнения нескольких потоков приложения, между которыми процессор переключается, либо когда потоки уступают управление (кооперативная многозадачность), либо на основе регулярного таймера или прерываний (вытесняющая многозадачность). RTOS обычно предоставляют мьютексы и другие примитивы синхронизации и часто взаимодействуют с аппаратными функциями, такими как движки DMA.</p>
+<p>На момент написания мало примеров RTOS на Rust, но это интересная область, так что следите за обновлениями!</p>
+<h2 id="Многоядерные-системы"><a class="header" href="#Многоядерные-системы">Многоядерные системы</a></h2>
+<p>Наличие двух или более ядер в процессорах для встраиваемых систем становится все более распространенным, что добавляет дополнительный уровень сложности к параллелизму. Все примеры с использованием критических секций (включая <code>cortex_m::interrupt::Mutex</code>) предполагают, что единственный другой поток выполнения — это поток прерываний, но в многоядерной системе это уже не так. Вместо этого потребуются примитивы синхронизации, разработанные для многоядерных систем (также называемых SMP, симметричная многопроцессорность).</p>
+<p>Они обычно используют атомарные инструкции, которые мы видели ранее, поскольку система обработки гарантирует сохранение атомарности на всех ядрах.</p>
+<p>Подробное рассмотрение этих тем пока выходит за рамки этой книги, но общие шаблоны аналогичны случаю с одним ядром.</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../portability/index.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../collections/index.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../portability/index.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../collections/index.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>

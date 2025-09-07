@@ -1,0 +1,286 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Инструменты - The Embedded Rust Book</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="highlight-css" href="../highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="../tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "../searchindex.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">The Embedded Rust Book</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/rust-embedded/book" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <i class="fa fa-spinner fa-spin"></i>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="Инструменты"><a class="header" href="#Инструменты">Инструменты</a></h1>
+<p>Работа с микроконтроллерами включает использование нескольких различных инструментов, поскольку мы имеем дело с архитектурой, отличной от вашего ноутбука, и нам придется запускать и отлаживать программы на <em>удаленном</em> устройстве.</p>
+<p>Мы будем использовать все перечисленные ниже инструменты. Любая недавняя версия должна работать, если не указана минимальная версия, но мы перечислили протестированные версии.</p>
+<ul>
+<li>Rust 1.31, 1.31-beta или более новая цепочка инструментов ПЛЮС поддержка компиляции для ARM Cortex-M.</li>
+<li><a href="https://github.com/rust-embedded/cargo-binutils"><code>cargo-binutils</code></a> ~0.1.4</li>
+<li><a href="https://www.qemu.org/"><code>qemu-system-arm</code></a>. Протестированные версии: 3.0.0</li>
+<li>OpenOCD &gt;=0.8. Протестированные версии: v0.9.0 и v0.10.0</li>
+<li>GDB с поддержкой ARM. Рекомендуется версия 7.12 или новее. Протестированные версии: 7.10, 7.11, 7.12 и 8.1</li>
+<li><a href="https://github.com/ashleygwilliams/cargo-generate"><code>cargo-generate</code></a> или <code>git</code>. Эти инструменты опциональны, но облегчат следование книге.</li>
+</ul>
+<p>Текст ниже объясняет, почему мы используем эти инструменты. Инструкции по установке можно найти на следующей странице.</p>
+<h2 id="cargo-generate-ИЛИ-git"><a class="header" href="#cargo-generate-ИЛИ-git"><code>cargo-generate</code> ИЛИ <code>git</code></a></h2>
+<p>Программы без ОС (bare metal) — это нестандартные (<code>no_std</code>) программы на Rust, требующие некоторых корректировок процесса линковки для правильной компоновки памяти. Это требует дополнительных файлов (таких как скрипты линковки) и настроек (таких как флаги линковки). Мы упаковали их для вас в шаблон, так что вам нужно только заполнить недостающую информацию (например, имя проекта и характеристики целевого оборудования).</p>
+<p>Наш шаблон совместим с <code>cargo-generate</code>: подкомандой Cargo для создания новых проектов Cargo из шаблонов. Вы также можете скачать шаблон с помощью <code>git</code>, <code>curl</code>, <code>wget</code> или вашего веб-браузера.</p>
+<h2 id="cargo-binutils"><a class="header" href="#cargo-binutils"><code>cargo-binutils</code></a></h2>
+<p><code>cargo-binutils</code> — это коллекция подкоманд Cargo, облегчающих использование инструментов LLVM, поставляемых с цепочкой инструментов Rust. Эти инструменты включают версии LLVM <code>objdump</code>, <code>nm</code> и <code>size</code> и используются для инспекции бинарных файлов.</p>
+<p>Преимущество использования этих инструментов перед GNU binutils заключается в том, что (a) установка инструментов LLVM — это одна команда (<code>rustup component add llvm-tools</code>) независимо от вашей ОС и (b) инструменты вроде <code>objdump</code> поддерживают все архитектуры, поддерживаемые <code>rustc</code> — от ARM до x86_64 — поскольку они оба используют один и тот же бэкенд LLVM.</p>
+<h2 id="qemu-system-arm"><a class="header" href="#qemu-system-arm"><code>qemu-system-arm</code></a></h2>
+<p>QEMU — это эмулятор. В данном случае мы используем вариант, который может полностью эмулировать системы ARM. Мы используем QEMU для запуска программ для встраиваемых систем на хосте. Благодаря этому вы можете следовать некоторым частям этой книги, даже если у вас нет оборудования!</p>
+<h1 id="Инструменты-для-отладки-embedded-rust"><a class="header" href="#Инструменты-для-отладки-embedded-rust">Инструменты для отладки Embedded Rust</a></h1>
+<h2 id="Обзор"><a class="header" href="#Обзор">Обзор</a></h2>
+<p>Отладка встраиваемых систем в Rust требует специализированных инструментов, включая ПО для управления процессом отладки, отладчики для инспекции и управления выполнением программы, а также аппаратные пробники для взаимодействия между хостом и встраиваемым устройством. Этот документ описывает основные программные инструменты, такие как Probe-rs и OpenOCD, которые упрощают и поддерживают процесс отладки, а также известные отладчики, такие как GDB и расширение Probe-rs для Visual Studio Code. Кроме того, он охватывает ключевые аппаратные пробники, такие как Rusty-probe, ST-Link, J-Link и MCU-Link, которые необходимы для эффективной отладки и программирования встраиваемых устройств.</p>
+<h2 id="ПО-управляющее-инструментами-отладки"><a class="header" href="#ПО-управляющее-инструментами-отладки">ПО, управляющее инструментами отладки</a></h2>
+<h3 id="probe-rs"><a class="header" href="#probe-rs">Probe-rs</a></h3>
+<p>Probe-rs — это современное ПО, ориентированное на Rust, предназначенное для работы с отладчиками во встраиваемых системах. В отличие от OpenOCD, Probe-rs разработан с учетом простоты и стремится уменьшить нагрузку на конфигурацию, часто встречающуюся в других решениях отладки. Он поддерживает различные пробники и цели, предоставляя высокоуровневый интерфейс для взаимодействия со встраиваемыми системами. Probe-rs позволяет разработчикам устанавливать точки останова, шагать по коду и исследовать состояние памяти и регистров процессора. Он интегрируется с популярными IDE, такими как Visual Studio Code, и поддерживает функции, специфичные для Rust, такие как красивая печать и детализированные сообщения об ошибках.</p>
+<h3 id="openocd"><a class="header" href="#openocd">OpenOCD</a></h3>
+<p>OpenOCD (Open On-Chip Debugger) — это открытое ПО для отладки и программирования встраиваемых систем. Оно поддерживает широкий спектр аппаратных пробников и микроконтроллеров, позволяя разработчикам взаимодействовать с целевыми устройствами через интерфейсы вроде JTAG или SWD. OpenOCD служит сервером отладки, который может подключаться к отладчикам вроде GDB, предоставляя низкоуровневый доступ к регистрам, памяти и периферийным устройствам микроконтроллера. Он высоко конфигурируем и используется в различных окружениях разработки для встраиваемых систем.</p>
+<h2 id="Отладчики"><a class="header" href="#Отладчики">Отладчики</a></h2>
+<p>Отладчики — это инструменты, позволяющие разработчикам проверять состояние программ во время выполнения или после сбоя. Они предоставляют функциональности, такие как установка точек останова, шагание по коду строка за строкой и исследование значений переменных и состояний памяти. Отладчики необходимы для тщательной разработки и обслуживания ПО, позволяя разработчикам убедиться, что их код ведет себя как ожидается в различных условиях.</p>
+<p>Отладчики знают, как:</p>
+<ul>
+<li>Взаимодействовать с регистрами, отображенными в память.</li>
+<li>Устанавливать точки останова/наблюдения.</li>
+<li>Читать и писать в регистры, отображенные в память.</li>
+<li>Обнаруживать, когда микроконтроллер остановлен для события отладки.</li>
+<li>Продолжать выполнение микроконтроллера после события отладки.</li>
+<li>Стирать и записывать в FLASH микроконтроллера.</li>
+</ul>
+<h3 id="Расширение-probe-rs-для-visual-studio-code"><a class="header" href="#Расширение-probe-rs-для-visual-studio-code">Расширение Probe-rs для Visual Studio Code</a></h3>
+<p>Probe-rs имеет расширение для Visual Studio Code, предоставляющее seamless опыт отладки без обширной настройки. Через это соединение разработчики могут использовать функции, специфичные для Rust, такие как красивая печать и детализированные сообщения об ошибках, обеспечивая, что процесс отладки соответствует экосистеме Rust.</p>
+<h3 id="gdb-gnu-debugger"><a class="header" href="#gdb-gnu-debugger">GDB (GNU Debugger)</a></h3>
+<p>GDB — это универсальный инструмент отладки, позволяющий разработчикам проверять состояние программ во время выполнения или после сбоя. Для embedded Rust GDB подключается к целевой системе через OpenOCD или другие серверы отладки для взаимодействия с кодом встраиваемой системы. GDB высоко конфигурируем и поддерживает функции вроде удаленной отладки, инспекции переменных и условных точек останова. Он может использоваться на различных платформах и имеет обширную поддержку нужд отладки, специфичных для Rust, таких как красивая печать и интеграция с IDE.</p>
+<h2 id="Пробники"><a class="header" href="#Пробники">Пробники</a></h2>
+<p>Аппаратный пробник — это устройство, используемое в разработке и отладке встраиваемых систем для облегчения коммуникации между хост-компьютером и целевым встраиваемым устройством. Он обычно поддерживает протоколы вроде JTAG или SWD, позволяя программировать, отлаживать и анализировать микроконтроллер или микропроцессор на встраиваемой системе. Аппаратные пробники критичны для разработчиков, чтобы устанавливать точки останова, шагать по коду и инспектировать память и регистры процессора, эффективно позволяя диагностировать и исправлять проблемы в реальном времени.</p>
+<h3 id="rusty-probe"><a class="header" href="#rusty-probe">Rusty-probe</a></h3>
+<p>Rusty-probe — это открытый USB-основанный аппаратный пробник отладки, предназначенный для работы с probe-rs. Комбинация Rusty-Probe и probe-rs предоставляет простое в использовании, экономичное решение для разработчиков, работающих с приложениями embedded Rust.</p>
+<h3 id="st-link"><a class="header" href="#st-link">ST-Link</a></h3>
+<p>ST-Link — это популярный пробник отладки и программирования, разработанный STMicroelectronics в основном для серий микроконтроллеров STM32 и STM8. Он поддерживает отладку и программирование через интерфейсы JTAG или SWD (Serial Wire Debug). ST-Link широко используется благодаря прямой поддержке от STMicroelectronics для широкого спектра плат разработки и интеграции в основные IDE, делая его удобным выбором для разработчиков, работающих с микроконтроллерами STM.</p>
+<h3 id="j-link"><a class="header" href="#j-link">J-Link</a></h3>
+<p>J-Link, разработанный SEGGER Microcontroller, — это надежный и универсальный отладчик, поддерживающий широкий спектр ядер CPU и устройств за пределами ARM, таких как RISC-V. Известный своей высокой производительностью и надежностью, J-Link поддерживает различные интерфейсы связи, включая JTAG, SWD и fine-pitch JTAG. Он популярен благодаря продвинутым функциям, таким как неограниченные точки останова в flash-памяти и совместимость с множеством сред разработки.</p>
+<h3 id="mcu-link"><a class="header" href="#mcu-link">MCU-Link</a></h3>
+<p>MCU-Link — это пробник отладки, который также функционирует как программатор, предоставляемый NXP Semiconductors. Он поддерживает разнообразные микроконтроллеры ARM Cortex и seamless интегрируется с инструментами разработки вроде MCUXpresso IDE. MCU-Link особенно известен своей универсальностью и доступностью, делая его доступным вариантом для хоббиистов, преподавателей и профессиональных разработчиков.</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../intro/no-std.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../intro/install.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../intro/no-std.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../intro/install.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>
